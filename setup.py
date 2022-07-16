@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="paper-candy",
-    version="0.0.1b0",
+    version="0.0.1b1",
     author="ATATC",
     author_email="futerry@outlook.com",
     description="A loosely coupled training framework for Deep Learning research.",
@@ -13,5 +13,5 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ATATC/PaperCandy",
     packages=setuptools.find_packages(),
-    install_requires=["pytorch", ],
+    install_requires=["torch", ],
 )
