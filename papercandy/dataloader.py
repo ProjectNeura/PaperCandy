@@ -20,9 +20,3 @@ class ExampleDataset(Dataset):
     def __getitem__(self, index: int) -> dict:
         with open("%s/%s" % (self.src, self.file_list[index]), "r") as f:
             return {self.file_list[index]: f.read()}
-
-
-if __name__ == '__main__':
-    dl = Dataloader(ExampleDataset("../../data"))
-    for d in dl:
-        print(d)

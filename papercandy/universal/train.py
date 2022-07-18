@@ -5,15 +5,10 @@ from papercandy.universal import network as _network, dataloader as _dl, config 
 
 
 class TrainingMonitor(object):
-    @abstractmethod
     def on_start(self, epoch: int, loss_function: _network.LossFunctionC): pass
-    @abstractmethod
     def on_batch_start(self, epoch: int, loss_function: _network.LossFunctionC): pass
-    @abstractmethod
     def on_updated(self, epoch: int, loss: float, input_data: Any, output_data: Any): pass
-    @abstractmethod
     def on_batch_finish(self, epoch: int, loss_function: _network.LossFunctionC): pass
-    @abstractmethod
     def on_finish(self, epoch: int, loss_function: _network.LossFunctionC): pass
 
 
@@ -25,6 +20,7 @@ class Trainer(object):
         self._config: Union[_cfg.Config, None] = config
         self._dataloader: Union[_dl.Dataloader, None] = dataloader
         self._epoch: int = 0
+        self.losses: list[float] = []
 
     def _check_requirements(self) -> bool:
         return self._config is not None and self._dataloader is not None and self._nc is not None \
@@ -83,6 +79,7 @@ class Trainer(object):
         for d in data_batch:
             o, loss = self.train_single(self.get_epoch(), self.get_network().get(), self.get_loss_function().get(),
                                         self.get_optimizer().get(), d)
+            self.losses.append(loss)
             monitor.on_updated(self.get_epoch(), loss, d, o)
         monitor.on_batch_finish(self.get_epoch(), self.get_loss_function())
 
@@ -95,6 +92,6 @@ class Trainer(object):
         :param loss_function: loss function (not container)
         :param optimizer: optimizer (not container)
         :param data: single data, not batched
-        :return: network output
+        :return: network output, loss
         """
         raise NotImplementedError

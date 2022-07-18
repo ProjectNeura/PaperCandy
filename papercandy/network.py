@@ -46,8 +46,7 @@ class NetworkC(_network.NetworkC):
     def layer2layer_info(layer: _Module) -> Union[LayerInfo, None]:
         angle = 23
         if isinstance(layer, _modules.conv._ConvNd):
-            return LayerInfo(1200, 1200, angle, "Conv",
-                             description=f"{layer.in_channels}(in)x{layer.out_channels}(out)")
+            return LayerInfo(1200, 1200, angle, "Conv", f"{layer.in_channels}(in)x{layer.out_channels}(out)")
         if isinstance(layer, _modules.pooling._MaxPoolNd):
             return LayerInfo(800, 800, angle, "Pooling")
         if isinstance(layer, _modules.dropout._DropoutNd):

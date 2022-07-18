@@ -1,18 +1,20 @@
-import cv2 as _cv
+import cv2 as _cv2
+import numpy as _np
 from os import PathLike
 from abc import abstractmethod
 from typing import Any, Union
 from typing_extensions import Self
 from functools import singledispatch
-from numpy import tan as _tan, sin as _sin, ones as _ones, uint8 as _uint8, ndarray as _ndarray
+from matplotlib import pyplot as _plt
 
 from papercandy import network as _network
+from papercandy.universal import train as _train
 from papercandy.universal import utils as _utils
 
 
 class Drawer(object):
     @abstractmethod
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> Self:
         raise NotImplementedError
 
     @abstractmethod
@@ -25,18 +27,26 @@ class Drawer(object):
 
 
 class NetworkDrawer(Drawer):
-    def __init__(self, width: int, height: int, bg: Union[int, tuple[int]] = 255, margin_start: Union[int, float] = 0.2,
-                 margin_top: Union[int, float] = 0.1, margin_end: Union[int, float] = 0.2,
-                 margin_bottom: Union[int, float] = 0.1):
+    def __init__(self, width: int, height: int, bg: Union[int, tuple[int]] = 255,
+                 margin: Union[int, float, tuple, list] = (0.2, 0.1, 0.2, 0.2)):
         self._width: int = width
         self._height: int = width
+        if isinstance(margin, int):
+            margin_start = margin_end = margin_top = margin_bottom = margin
+        elif isinstance(margin, float):
+            margin_start = margin_end = width * margin
+            margin_top = margin_bottom = height * margin
+        elif isinstance(margin, tuple) or isinstance(margin, list):
+            margin_start, margin_end, margin_top, margin_bottom = margin[0], margin[1], margin[2], margin[3]
+        else:
+            raise TypeError(f"No known case for `margin`: {type(margin)}.")
         self._margin_start: int = round(margin_start * width if -1 < margin_start < 1 else margin_start)
-        self._margin_top: int = round(margin_top * height if -1 < margin_top < 1 else margin_top)
         self._margin_end: int = round(margin_end * width if -1 < margin_end < 1 else margin_end)
+        self._margin_top: int = round(margin_top * height if -1 < margin_top < 1 else margin_top)
         self._margin_bottom: int = round(margin_bottom * height if -1 < margin_bottom < 1 else margin_bottom)
         self._display_width: int = width + self._margin_start + self._margin_end
         self._display_height: int = height + self._margin_top + self._margin_bottom
-        self._canvas: _ndarray = _ones((self._display_height, self._display_width), dtype=_uint8) * bg \
+        self._canvas: _np.ndarray = _np.ones((self._display_height, self._display_width), dtype=_np.uint8) * bg \
             if isinstance(bg, int) else self._create_canvas(self._display_width, self._display_height, bg)
 
     def __call__(self, layer_width: int, graph_width: int, layer_height: int, layer_angle: int, offset_x: int,
@@ -54,8 +64,8 @@ class NetworkDrawer(Drawer):
         return self
 
     @staticmethod
-    def _create_canvas(width: int, height: int, color: tuple[int]) -> _ndarray:
-        canvas = _ones((height, width, len(color)), dtype=_uint8)
+    def _create_canvas(width: int, height: int, color: tuple[int]) -> _np.ndarray:
+        canvas = _np.ones((height, width, len(color)), dtype=_np.uint8)
         canvas[:] = color
         return canvas
 
@@ -63,12 +73,12 @@ class NetworkDrawer(Drawer):
         self._margin_start: int = round(margin_start * self._width if -1 < margin_start < 1 else margin_start)
         return self
 
-    def set_margin_top(self, margin_top: Union[int, float]) -> Self:
-        self._margin_top: int = round(margin_top * self._height if -1 < margin_top < 1 else margin_top)
-        return self
-
     def set_margin_end(self, margin_end: Union[int, float]) -> Self:
         self._margin_end: int = round(margin_end * self._width if -1 < margin_end < 1 else margin_end)
+        return self
+
+    def set_margin_top(self, margin_top: Union[int, float]) -> Self:
+        self._margin_top: int = round(margin_top * self._height if -1 < margin_top < 1 else margin_top)
         return self
 
     def set_margin_bottom(self, margin_bottom: Union[int, float]) -> Self:
@@ -83,35 +93,60 @@ class NetworkDrawer(Drawer):
         offset_x, offset_y = offset_x + self._margin_start, offset_y + self._margin_bottom
         thickness = parent_width * 0.008
         thickness = round(thickness) if thickness > 1 else 1
-        _cv.line(self._canvas, (round(x1 + offset_x), self.rev_y(round(y1 + offset_y))),
-                 (round(x2 + offset_x), self.rev_y(y2 + offset_y)), color=color, thickness=thickness)
+        _cv2.line(self._canvas, (round(x1 + offset_x), self.rev_y(round(y1 + offset_y))),
+                  (round(x2 + offset_x), self.rev_y(y2 + offset_y)), color=color, thickness=thickness)
         return self
 
     def draw_text(self, text: str, parent_width: int, angle: int, offset_x: int, offset_y: int,
                   color: Union[int, tuple[int]] = 0) -> Self:
         font_size = parent_width * 0.024 / len(text)
         interval_x = round(parent_width / (len(text) + 1))
-        interval_y = round(interval_x * _tan(_utils.angle2radian(angle)))
+        interval_y = round(interval_x * _np.tan(_utils.angle2radian(angle)))
         offset_x, offset_y = offset_x + self._margin_start + interval_x, offset_y + self._margin_bottom + interval_y
         thickness = parent_width * 0.008
         thickness = round(thickness) if thickness > 1 else 1
         for c in text:
-            _cv.putText(self._canvas, c, (offset_x, self.rev_y(offset_y)), fontFace=_cv.FONT_HERSHEY_SIMPLEX,
-                        fontScale=font_size, color=color, thickness=thickness)
+            _cv2.putText(self._canvas, c, (offset_x, self.rev_y(offset_y)), fontFace=_cv2.FONT_HERSHEY_SIMPLEX,
+                         fontScale=font_size, color=color, thickness=thickness)
             offset_x, offset_y = offset_x + interval_x, offset_y + interval_y
         return self
 
     @staticmethod
     def cal_bottom_line(layer_width: int, layer_angle: int) -> int:
-        return round(layer_width * _sin(_utils.angle2radian(layer_angle)))
+        return round(layer_width * _np.sin(_utils.angle2radian(layer_angle)))
 
-    def save(self, path: Union[str, PathLike]) -> Self:
-        _cv.imwrite(path, _cv.cvtColor(self._canvas, _cv.COLOR_BGR2RGB))
+    def show(self, title: str = "Network Structure") -> Self:
+        _cv2.imshow(title, _cv2.cvtColor(self._canvas, _cv2.COLOR_BGR2RGB))
+        _cv2.waitKey(0)
         return self
 
-    def show(self) -> Self:
-        _cv.imshow("Network Structure", _cv.cvtColor(self._canvas, _cv.COLOR_BGR2RGB))
-        _cv.waitKey(0)
+    def save(self, path: Union[str, PathLike]) -> Self:
+        _cv2.imwrite(path, _cv2.cvtColor(self._canvas, _cv2.COLOR_BGR2RGB))
+        return self
+
+
+class LossesDrawer(Drawer):
+    def __init__(self, width: int, height: int, bg: str = "white"):
+        self._width: int = round(width / 100)
+        self._height: int = round(height / 100)
+        self._losses: list[float] = []
+        self._bg: str = bg
+
+    def __call__(self, losses: list[float], color: str = "black") -> Self:
+        self._losses += losses
+        _plt.figure(figsize=(self._width, self._height))
+        _plt.plot(_np.arange(1, len(self._losses) + 1), self._losses, marker="o", color=color, label="loss")
+        _plt.xlabel("Epoch")
+        _plt.ylabel("Loss")
+        return self
+
+    def show(self, title: str = "Training Loss") -> Self:
+        _plt.title(title)
+        _plt.show()
+        return self
+
+    def save(self, path: Union[str, PathLike]) -> Self:
+        _plt.savefig(path)
         return self
 
 
@@ -122,21 +157,27 @@ def draw(obj: Any, *args, **kwargs) -> Drawer:
 
 @draw.register(_network.LayerInfoList)
 def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255) -> Drawer:
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1, 0.2, 0.2)) -> Drawer:
     if interval < 0:
         raise ValueError("`interval` cannot be negative.")
-    drawer = NetworkDrawer(*lil(interval), bg=bg)
+    drawer = NetworkDrawer(*lil(interval), bg, margin)
     offset_x, offset_y = 0, 0
     for layer in lil:
         drawer(layer.width, layer.g_width, layer.height, layer.angle, round(offset_x), round(offset_y), layer.name,
-               description=layer.description, color=color)
+               layer.description, color)
         offset_x += layer.g_width + layer.parse_interval(interval)
     return drawer
 
 
 @draw.register(_network.NetworkC)
 def _(network: _network.NetworkC, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255) -> Drawer:
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1, 0.2, 0.2)) -> Drawer:
     if interval < 0:
         raise ValueError("`interval` cannot be negative.")
-    return draw(network.structure(), interval, color, bg)
+    return draw(network.structure(), interval, color, bg, margin)
+
+
+@draw.register(_train.Trainer)
+def _(trainer: _train.Trainer, width: int, height: int, color: str = "black", bg: str = "white") -> Drawer:
+    drawer = LossesDrawer(width, height, bg)
+    return drawer(trainer.losses, color)
