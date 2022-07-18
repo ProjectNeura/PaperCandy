@@ -10,7 +10,7 @@ from papercandy import network as _network  # To make the DataCompound's inner t
 
 class Dataset(object):
     @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise NotImplementedError
 
     @abstractmethod
@@ -22,7 +22,23 @@ class Dataset(object):
         raise NotImplementedError
 
 
-class Dataloader(Iterator):
+class UniversalDataloader(Iterator):
+    def __iter__(self) -> Self:
+        return self
+
+    def __call__(self) -> list[_network.DataCompound]:
+        return next(self)
+
+    @abstractmethod
+    def __next__(self) -> list[_network.DataCompound]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def load_batch(self, size: int) -> list[_network.DataCompound]:
+        raise NotImplementedError
+
+
+class Dataloader(UniversalDataloader):
     def __init__(self, dataset: Dataset, batch_size: int = 1, num_works: int = 1):
         if batch_size < 1:
             raise ValueError("`batch_size` must be at least 1.")

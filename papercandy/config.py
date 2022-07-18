@@ -1,4 +1,4 @@
-from _universal import config as _config
+from universal import config as _config
 
 
 Config = _config.Config

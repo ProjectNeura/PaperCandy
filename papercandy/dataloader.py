@@ -2,7 +2,7 @@ from typing import Union
 from os import listdir as _listdir, PathLike
 
 
-from _universal import dataloader as _dataloader
+from universal import dataloader as _dataloader
 
 
 Dataset = _dataloader.Dataset

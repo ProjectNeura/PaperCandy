@@ -4,15 +4,20 @@ from typing import Union
 from typing_extensions import Self
 
 from torch.nn import Module as _Module
+from torch.nn import modules as _modules
 from torch import Tensor as _Tensor, save as _save
 
 
-from _universal import network as _network
+from universal import network as _network
 
 
 class DataCompound(_network.DataCompound):
     def __init__(self, data: _Tensor, target: _Tensor):
         super(DataCompound, self).__init__(data, target, d_type=_Tensor)
+
+
+LayerInfo = _network.LayerInfo
+LayerInfoList = _network.LayerInfoList
 
 
 class NetworkC(_network.NetworkC):
@@ -28,6 +33,30 @@ class NetworkC(_network.NetworkC):
 
     def save(self, path: Union[str, PathLike]):
         _save(self.get(), path)
+
+    def structure(self) -> LayerInfoList[LayerInfo]:
+        lil = LayerInfoList()
+        for val in self._network.__dict__["_modules"].values():
+            layer_info = self.layer2layer_info(val)
+            if layer_info is not None:
+                lil.append(layer_info)
+        return lil
+
+    @staticmethod
+    def layer2layer_info(layer: _Module) -> Union[LayerInfo, None]:
+        angle = 23
+        if isinstance(layer, _modules.conv._ConvNd):
+            return LayerInfo(1200, 1200, angle, "Conv",
+                             description=f"{layer.in_channels}(in)x{layer.out_channels}(out)")
+        if isinstance(layer, _modules.pooling._MaxPoolNd):
+            return LayerInfo(800, 800, angle, "Pooling")
+        if isinstance(layer, _modules.dropout._DropoutNd):
+            return LayerInfo(800, 800, angle, "Dropout")
+        if isinstance(layer, _modules.batchnorm._BatchNorm):
+            return LayerInfo(800, 800, angle, "BatchNorm")
+        if isinstance(layer, _modules.ReLU):
+            return LayerInfo(400, 400, angle, "Relu")
+        return None
 
 
 class LossFunctionC(_network.LossFunctionC):
