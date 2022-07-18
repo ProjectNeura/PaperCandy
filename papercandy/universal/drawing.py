@@ -121,7 +121,7 @@ def draw(obj: Any, *args, **kwargs) -> Drawer:
 
 
 @draw.register(_network.LayerInfoList)
-def _(lil: _network.LayerInfoList, interval: Union[int, float], color: Union[int, tuple[int]] = 0,
+def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
       bg: Union[int, tuple[int]] = 255) -> Drawer:
     if interval < 0:
         raise ValueError("`interval` cannot be negative.")
@@ -135,7 +135,7 @@ def _(lil: _network.LayerInfoList, interval: Union[int, float], color: Union[int
 
 
 @draw.register(_network.NetworkC)
-def _(network: _network.NetworkC, interval: Union[int, float] = 0.2, color: Union[int, tuple[int]] = 0,
+def _(network: _network.NetworkC, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
       bg: Union[int, tuple[int]] = 255) -> Drawer:
     if interval < 0:
         raise ValueError("`interval` cannot be negative.")
