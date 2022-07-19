@@ -37,7 +37,19 @@ class NetworkC(_network.NetworkC):
     def structure(self) -> LayerInfoList[LayerInfo]:
         lil = LayerInfoList()
         for val in self._network.__dict__["_modules"].values():
+            if isinstance(val, _modules.Sequential):
+                lil += self.reflect_sequential(val)
             layer_info = self.layer2layer_info(val)
+            if layer_info is not None:
+                lil.append(layer_info)
+        return lil
+
+    def reflect_sequential(self, seq: _modules.Sequential) -> LayerInfoList[LayerInfo]:
+        lil = LayerInfoList()
+        for layer in seq:
+            if isinstance(layer, _modules.Sequential):
+                lil += self.reflect_sequential(layer)
+            layer_info = self.layer2layer_info(layer)
             if layer_info is not None:
                 lil.append(layer_info)
         return lil

@@ -54,23 +54,23 @@ class LayerInfo(object):
 
 class LayerInfoList(Sequence):
     def __init__(self, *layers: LayerInfo):
-        self.layers: list[LayerInfo] = list(layers)
+        self._layers: list[LayerInfo] = list(layers)
 
     def __iter__(self) -> Iterable[LayerInfo]:
-        return iter(self.layers)
+        return iter(self._layers)
 
     def __len__(self) -> int:
-        return len(self.layers)
+        return len(self._layers)
 
     def __getitem__(self, item) -> LayerInfo:
-        return self.layers[item]
+        return self._layers[item]
 
     def __call__(self, interval: Union[int, float]) -> (int, int):
         if interval < 0:
             raise ValueError("`interval` cannot be negative.")
         canvas_width = 0
         canvas_height = 0
-        for layer in self.layers:
+        for layer in self._layers:
             interval = layer.parse_interval(interval)
             canvas_width += layer.g_width + interval
             graph_height = layer.width * _sin(_utils.angle2radian(layer.angle)) + layer.height
@@ -79,8 +79,16 @@ class LayerInfoList(Sequence):
         canvas_width -= interval
         return round(canvas_width), round(canvas_height)
 
+    def __add__(self, other) -> Self:
+        if not isinstance(other, LayerInfoList):
+            raise TypeError("LayerInfoList can only be added to another LayerInfoList.")
+        return LayerInfoList(*(self._layers + other.get_layers()))
+
+    def get_layers(self) -> list[LayerInfo]:
+        return self._layers
+
     def append(self, layer_info: LayerInfo) -> Self:
-        self.layers.append(layer_info)
+        self._layers.append(layer_info)
         return self
 
 

@@ -15,37 +15,69 @@ from papercandy.universal import utils as _utils
 class Drawer(object):
     @abstractmethod
     def __call__(self, *args, **kwargs) -> Self:
+        """
+        Draw.
+        :param args: unknown
+        :param kwargs: unknown
+        :return: self
+        """
         raise NotImplementedError
 
     @abstractmethod
     def show(self) -> Self:
+        """
+        Show the drawing.
+        :return: self
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def save(self, path: Union[str, PathLike]) -> Self:
+    def save(self, filename: Union[str, PathLike]) -> Self:
+        """
+        Save the drawing into a file.
+        :param filename: filename
+        :return: self
+        """
         raise NotImplementedError
 
 
 class NetworkDrawer(Drawer):
     def __init__(self, width: int, height: int, bg: Union[int, tuple[int]] = 255,
                  margin: Union[int, float, tuple, list] = (0.2, 0.1, 0.2, 0.2)):
+        """
+        Initialize the drawer.
+        :param width: canvas width (pixels, without margin)
+        :param height: canvas height (pixels, without margin)
+        :param bg: background color (int for grayscale, tuple for multichannel)
+        :param margin: margin (int for pixels, float for ratio)
+            specific: horizontal, vertical / start, end, top, bottom
+        """
         self._width: int = width
         self._height: int = width
+        # parse margin
         if isinstance(margin, int):
             margin_start = margin_end = margin_top = margin_bottom = margin
         elif isinstance(margin, float):
             margin_start = margin_end = width * margin
             margin_top = margin_bottom = height * margin
         elif isinstance(margin, tuple) or isinstance(margin, list):
-            margin_start, margin_end, margin_top, margin_bottom = margin[0], margin[1], margin[2], margin[3]
+            if len(margin) == 2:
+                margin_start = margin_end = margin[0]
+                margin_top = margin_bottom = margin[1]
+            elif len(margin) == 4:
+                margin_start, margin_end, margin_top, margin_bottom = margin[0], margin[1], margin[2], margin[3]
+            else:
+                raise AttributeError("Unexpected length of `margin`.")
         else:
             raise TypeError(f"No known case for `margin`: {type(margin)}.")
         self._margin_start: int = round(margin_start * width if -1 < margin_start < 1 else margin_start)
         self._margin_end: int = round(margin_end * width if -1 < margin_end < 1 else margin_end)
         self._margin_top: int = round(margin_top * height if -1 < margin_top < 1 else margin_top)
         self._margin_bottom: int = round(margin_bottom * height if -1 < margin_bottom < 1 else margin_bottom)
+        # cal actual size
         self._display_width: int = width + self._margin_start + self._margin_end
         self._display_height: int = height + self._margin_top + self._margin_bottom
+        # create canvas (grayscale or multichannel)
         self._canvas: _np.ndarray = _np.ones((self._display_height, self._display_width), dtype=_np.uint8) * bg \
             if isinstance(bg, int) else self._create_canvas(self._display_width, self._display_height, bg)
 
@@ -65,6 +97,13 @@ class NetworkDrawer(Drawer):
 
     @staticmethod
     def _create_canvas(width: int, height: int, color: tuple[int]) -> _np.ndarray:
+        """
+        Create a canvas with multi channels.
+        :param width: canvas width
+        :param height: canvas height
+        :param color: color
+        :return: an array
+        """
         canvas = _np.ones((height, width, len(color)), dtype=_np.uint8)
         canvas[:] = color
         return canvas
@@ -86,10 +125,28 @@ class NetworkDrawer(Drawer):
         return self
 
     def rev_y(self, y: int) -> int:
+        """
+        Reverse the y coordinate vertically.
+        :param y: original y coordinate
+        :return: reversed y coordinate
+        """
         return self._display_height - y
 
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, parent_width: int, offset_x: int, offset_y: int,
                   color: Union[int, tuple[int]] = 0) -> Self:
+        """
+        Draw a line.
+        :param x1: x coordinate of point 1
+        :param y1: y coordinate of point 1
+        :param x2: x coordinate of point 2
+        :param y2: y coordinate of point 2
+        :param parent_width: the parent area width which is used to calculate the relative thickness
+        :param offset_x: holistic offset on the X axis
+        :param offset_y: holistic offset on the Y axis
+        :param color: line color (int for grayscale, tuple for multichannel)
+            NOTICE: If the background is set as grayscale, the line color should be grayscale as well and vise versa.
+        :return: self
+        """
         offset_x, offset_y = offset_x + self._margin_start, offset_y + self._margin_bottom
         thickness = parent_width * 0.008
         thickness = round(thickness) if thickness > 1 else 1
@@ -99,6 +156,17 @@ class NetworkDrawer(Drawer):
 
     def draw_text(self, text: str, parent_width: int, angle: int, offset_x: int, offset_y: int,
                   color: Union[int, tuple[int]] = 0) -> Self:
+        """
+        Write a text.
+        :param text: the text
+        :param parent_width: the parent area width which is used to calculate the relative font size and thickness
+        :param angle: the angle between the text direction and the right side of the X axis
+        :param offset_x: holistic offset on the X axis
+        :param offset_y: holistic offset on the Y axis
+        :param color: text color (int for grayscale, tuple for multichannel)
+            NOTICE: If the background is set as grayscale, the text color should be grayscale as well and vise versa.
+        :return: self
+        """
         font_size = parent_width * 0.024 / len(text)
         interval_x = round(parent_width / (len(text) + 1))
         interval_y = round(interval_x * _np.tan(_utils.angle2radian(angle)))
@@ -113,15 +181,23 @@ class NetworkDrawer(Drawer):
 
     @staticmethod
     def cal_bottom_line(layer_width: int, layer_angle: int) -> int:
+        """
+        Calculate the extra height. See in the detailed documentation.
+        :param layer_width: the layer width
+        :param layer_angle: the angle between the bottom side and the right side of the X axis
+        :return: the extra height
+        """
         return round(layer_width * _np.sin(_utils.angle2radian(layer_angle)))
 
     def show(self, title: str = "Network Structure") -> Self:
+        # WARNING: there might be some potential problem when the channels don't stand for RGB
         _cv2.imshow(title, _cv2.cvtColor(self._canvas, _cv2.COLOR_BGR2RGB))
         _cv2.waitKey(0)
         return self
 
-    def save(self, path: Union[str, PathLike]) -> Self:
-        _cv2.imwrite(path, _cv2.cvtColor(self._canvas, _cv2.COLOR_BGR2RGB))
+    def save(self, filename: Union[str, PathLike]) -> Self:
+        # WARNING: there might be some potential problem when the channels don't stand for RGB
+        _cv2.imwrite(filename, _cv2.cvtColor(self._canvas, _cv2.COLOR_BGR2RGB))
         return self
 
 
@@ -145,8 +221,8 @@ class LossesDrawer(Drawer):
         _plt.show()
         return self
 
-    def save(self, path: Union[str, PathLike]) -> Self:
-        _plt.savefig(path)
+    def save(self, filename: Union[str, PathLike]) -> Self:
+        _plt.savefig(filename)
         return self
 
 
@@ -157,7 +233,7 @@ def draw(obj: Any, *args, **kwargs) -> Drawer:
 
 @draw.register(_network.LayerInfoList)
 def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1, 0.2, 0.2)) -> Drawer:
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.2, 0.1, 0.1)) -> Drawer:
     if interval < 0:
         raise ValueError("`interval` cannot be negative.")
     drawer = NetworkDrawer(*lil(interval), bg, margin)
@@ -171,7 +247,7 @@ def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Uni
 
 @draw.register(_network.NetworkC)
 def _(network: _network.NetworkC, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1, 0.2, 0.2)) -> Drawer:
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.2, 0.1, 0.1)) -> Drawer:
     if interval < 0:
         raise ValueError("`interval` cannot be negative.")
     return draw(network.structure(), interval, color, bg, margin)
