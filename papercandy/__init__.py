@@ -5,4 +5,9 @@ from papercandy.network import *
 from papercandy.dataloader import *
 
 
-CONFIG = new_config("conf.pcc")  # default path
+CONFIG = None
+
+
+def load_config(filename: Union[str, PathLike]):
+    global CONFIG
+    CONFIG = new_config(filename)

@@ -67,7 +67,7 @@ class NetworkDrawer(Drawer):
             elif len(margin) == 4:
                 margin_start, margin_end, margin_top, margin_bottom = margin[0], margin[1], margin[2], margin[3]
             else:
-                raise AttributeError("Unexpected length of `margin`.")
+                raise IndexError("Unexpected length of `margin`.")
         else:
             raise TypeError(f"No known case for `margin`: {type(margin)}.")
         self._margin_start: int = round(margin_start * width if -1 < margin_start < 1 else margin_start)
@@ -228,14 +228,12 @@ class LossesDrawer(Drawer):
 
 @singledispatch
 def draw(obj: Any, *args, **kwargs) -> Drawer:
-    raise TypeError(f"No known case for type {type(obj)}.")
+    raise TypeError(f"No known case for type {type(obj)}, args: {args}, kwargs: {kwargs}.")
 
 
 @draw.register(_network.LayerInfoList)
 def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.2, 0.1, 0.1)) -> Drawer:
-    if interval < 0:
-        raise ValueError("`interval` cannot be negative.")
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1)) -> Drawer:
     drawer = NetworkDrawer(*lil(interval), bg, margin)
     offset_x, offset_y = 0, 0
     for layer in lil:
@@ -247,9 +245,7 @@ def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Uni
 
 @draw.register(_network.NetworkC)
 def _(network: _network.NetworkC, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.2, 0.1, 0.1)) -> Drawer:
-    if interval < 0:
-        raise ValueError("`interval` cannot be negative.")
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1)) -> Drawer:
     return draw(network.structure(), interval, color, bg, margin)
 
 

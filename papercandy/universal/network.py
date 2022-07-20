@@ -45,8 +45,6 @@ class LayerInfo(object):
         return self.width, self.g_width, self.height, self.angle, self.name, self.description
 
     def parse_interval(self, interval: Union[int, float]) -> int:
-        if interval < 0:
-            raise ValueError("`interval` cannot be negative.")
         if interval >= 1:
             return interval
         return interval * self.g_width
@@ -68,21 +66,28 @@ class LayerInfoList(Sequence):
     def __call__(self, interval: Union[int, float]) -> (int, int):
         if interval < 0:
             raise ValueError("`interval` cannot be negative.")
+        if len(self._layers) < 1:
+            raise IndexError("There must be at least one layer.")
         canvas_width = 0
         canvas_height = 0
+        display_interval = None
         for layer in self._layers:
-            interval = layer.parse_interval(interval)
-            canvas_width += layer.g_width + interval
+            display_interval = layer.parse_interval(interval)
+            canvas_width += layer.g_width + display_interval
             graph_height = layer.width * _sin(_utils.angle2radian(layer.angle)) + layer.height
             if graph_height > canvas_height:
                 canvas_height = graph_height
-        canvas_width -= interval
+        canvas_width -= display_interval
         return round(canvas_width), round(canvas_height)
 
     def __add__(self, other) -> Self:
         if not isinstance(other, LayerInfoList):
             raise TypeError("LayerInfoList can only be added to another LayerInfoList.")
         return LayerInfoList(*(self._layers + other.get_layers()))
+
+    def reverse(self) -> Self:
+        self._layers.reverse()
+        return self
 
     def get_layers(self) -> list[LayerInfo]:
         return self._layers

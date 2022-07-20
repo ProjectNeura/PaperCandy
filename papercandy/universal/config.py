@@ -14,8 +14,8 @@ _required_configs: dict = {
 
 
 class Config(object):
-    def __init__(self, src: Union[str, PathLike]):
-        self.src: Union[str, PathLike] = src
+    def __init__(self, filename: Union[str, PathLike]):
+        self._filename: Union[str, PathLike] = filename
         self._config: dict = {}
 
     def __contains__(self, key: str) -> bool:
@@ -28,7 +28,7 @@ class Config(object):
         self._config[key] = value
 
     def load(self) -> Self:
-        with open(self.src, "r") as f:
+        with open(self._filename, "r") as f:
             lines = f.readlines()
             last = ""
             for line in lines:
@@ -65,8 +65,8 @@ class Config(object):
         return self.get(key, must_exists, required_type)
 
 
-def new_config(src: str) -> Config:
-    config = Config(src).load()
+def new_config(filename: Union[str, PathLike]) -> Config:
+    config = Config(filename).load()
     # Check required configurations
     for req_cfg_key in _required_configs.keys():
         if req_cfg_key not in config:
