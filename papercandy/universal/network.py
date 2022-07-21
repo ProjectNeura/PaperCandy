@@ -4,7 +4,6 @@ from abc import abstractmethod, ABC as _ABC
 from numpy import sin as _sin, cos as _cos
 from typing import Any, Union, Sequence, Iterable
 
-
 from papercandy.universal import utils as _utils
 
 

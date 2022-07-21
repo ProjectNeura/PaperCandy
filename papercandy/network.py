@@ -8,7 +8,7 @@ from torch.nn import modules as _modules
 from torch import Tensor as _Tensor, save as _save
 
 
-from universal import network as _network
+from papercandy.universal import network as _network
 
 
 class DataCompound(_network.DataCompound):

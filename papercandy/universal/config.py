@@ -3,7 +3,6 @@ from typing import Union, Any
 from typing_extensions import Self
 from multiprocessing import cpu_count as _cpu_count
 
-
 _required_configs: dict = {
     "data": ("./data", str),
     "batch_size": ("16", int),

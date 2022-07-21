@@ -6,9 +6,13 @@ from papercandy.universal import network as _network, dataloader as _dl, config 
 
 class TrainingMonitor(object):
     def on_start(self, epoch: int, loss_function: _network.LossFunctionC): pass
+
     def on_batch_start(self, epoch: int, loss_function: _network.LossFunctionC): pass
+
     def on_updated(self, epoch: int, loss: float, input_data: Any, output_data: Any): pass
+
     def on_batch_finish(self, epoch: int, loss_function: _network.LossFunctionC): pass
+
     def on_finish(self, epoch: int, loss_function: _network.LossFunctionC): pass
 
 

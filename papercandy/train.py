@@ -1,7 +1,7 @@
 from typing import Any
 from torch.nn import Module as _Module
 
-from universal import train as _train
+from papercandy.universal import train as _train
 from papercandy import network as _network
 
 

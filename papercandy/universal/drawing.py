@@ -91,7 +91,7 @@ class NetworkDrawer(Drawer):
         if description == "":
             self.draw_text(text, graph_width, layer_angle, offset_x, round(0.5 * layer_height), color)
         else:
-            self.draw_text(text, graph_width, layer_angle, offset_x, round(0.6 * layer_height), color)\
+            self.draw_text(text, graph_width, layer_angle, offset_x, round(0.6 * layer_height), color) \
                 .draw_text(description, graph_width, layer_angle, offset_x, round(0.4 * layer_height), color)
         return self
 

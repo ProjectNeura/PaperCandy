@@ -1,9 +1,8 @@
+from typing import Iterator
 from math import ceil as _ceil
 from abc import abstractmethod
 from typing_extensions import Self
-from typing import Iterator
 from multiprocessing import Pool as _Pool
-
 
 from papercandy import network as _network  # To make the DataCompound's inner type adaptable
 
