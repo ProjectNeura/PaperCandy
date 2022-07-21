@@ -1,6 +1,6 @@
 # PaperCandy
 
-**PaperCandy** is a loosely coupled training framework for Deep Learning research. It provides an intermediate layer so that the back-end frameworks (such as PyTorch or TensorFlow) can be replaced easily.
+**PaperCandy** is a loosely coupled lightweight framework for deep learning papers. It provides a series of auxiliary tools for rapid rebuilding and writing papers. Including universal data loader, and automatically generating network structure and training process diagram. So far support PyTorch as the only front-end framework.
 
 ## Installation
 
@@ -15,5 +15,3 @@ pip install paper-candy
 ```shell
 pip3 install paper-candy
 ```
-
-### 
