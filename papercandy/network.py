@@ -3,6 +3,7 @@ from typing import Union
 from typing_extensions import Self
 from torch.nn import Module as _Module
 from torch.nn import modules as _modules
+from torch.optim import Optimizer as _Optimizer
 from torch import Tensor as _Tensor, save as _save
 
 from papercandy.universal import network as _network
@@ -83,14 +84,13 @@ class LossFunctionC(_network.LossFunctionC):
 
 
 class OptimizerC(_network.OptimizerC):
-    def __init__(self, optimizer: _Module):
-        self._optimizer: _Module = optimizer
+    def __init__(self, optimizer: _Optimizer):
+        self._optimizer: _Optimizer = optimizer
 
     def cuda(self) -> Self:
-        self._optimizer = self._optimizer.cuda()
         return self
 
-    def get(self) -> _Module:
+    def get(self) -> _Optimizer:
         return self._optimizer
 
     def save(self, path: Union[str, PathLike]):
