@@ -59,7 +59,7 @@ class LayerInfoList(Sequence):
     def __len__(self) -> int:
         return len(self._layers)
 
-    def __getitem__(self, item) -> LayerInfo:
+    def __getitem__(self, item: Union[int, slice]) -> Union[LayerInfo, list[LayerInfo]]:
         return self._layers[item]
 
     def __call__(self, interval: Union[int, float]) -> (int, int):

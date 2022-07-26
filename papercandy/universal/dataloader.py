@@ -1,8 +1,9 @@
-from typing import Iterator
+from copy import copy as _copy
 from math import ceil as _ceil
 from abc import abstractmethod
 from typing_extensions import Self
 from multiprocessing import Pool as _Pool
+from typing import Iterator, Union, ClassVar
 
 from papercandy import network as _network  # To make the DataCompound's inner type adaptable
 
@@ -17,11 +18,34 @@ class Dataset(object):
         raise NotImplementedError
 
     @abstractmethod
-    def __getitem__(self, index: int) -> _network.DataCompound:
+    def cut(self, i: slice) -> ClassVar:
         raise NotImplementedError
+
+    @abstractmethod
+    def get(self, i: int) -> _network.DataCompound:
+        raise NotImplementedError
+
+    def __getitem__(self, item: Union[int, slice]) -> Union[_network.DataCompound, ClassVar]:
+        if isinstance(item, int):
+            return self.get(item)
+        if isinstance(item, slice):
+            return self.cut(item)
 
 
 class UniversalDataloader(Iterator):
+    def __init__(self, dataset: Dataset):
+        self.dataset: Dataset = dataset
+
+    def _get_item(self, item: slice, d_type: classmethod) -> ClassVar:
+        if isinstance(item, slice):
+            d_type(self.dataset)
+        raise TypeError("`item` should be slice.")
+
+    def __getitem__(self, item: slice) -> ClassVar:
+        o = _copy(self)
+        o.dataset = self.dataset[item]
+        return o
+
     def __iter__(self) -> Self:
         return self
 
@@ -46,7 +70,7 @@ class Dataloader(UniversalDataloader):
         if num_works > batch_size:
             raise ValueError("`num_works` must be less than `batch_size`.")
 
-        self.dataset: Dataset = dataset
+        super(Dataloader, self).__init__(dataset)
         self._batch_size: int = batch_size
         self._num_works: int = num_works
         self._iter_pointer: int = 0
