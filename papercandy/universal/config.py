@@ -3,11 +3,16 @@ from typing import Union, Any
 from typing_extensions import Self
 from multiprocessing import cpu_count as _cpu_count
 
+
+def Bool(s: str) -> bool:
+    return s == "True"
+
+
 _required_configs: dict = {
     "data": ("./data", str),
     "batch_size": ("16", int),
     "num_works": (str(_cpu_count()), int),
-    "cuda_acceleration": ("False", bool),
+    "cuda_acceleration": ("False", Bool),
     "device": ("0", int),
 }
 
