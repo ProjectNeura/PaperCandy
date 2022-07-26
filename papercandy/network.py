@@ -1,12 +1,9 @@
 from os import PathLike
 from typing import Union
-
 from typing_extensions import Self
-
 from torch.nn import Module as _Module
 from torch.nn import modules as _modules
 from torch import Tensor as _Tensor, save as _save
-
 
 from papercandy.universal import network as _network
 

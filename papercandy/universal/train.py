@@ -1,7 +1,8 @@
 from typing import Union, Any
 from abc import abstractmethod
 
-from papercandy.universal import network as _network, dataloader as _dl, config as _cfg
+from papercandy import network as _network
+from papercandy.universal import dataloader as _dl, config as _cfg
 
 
 class TrainingMonitor(object):

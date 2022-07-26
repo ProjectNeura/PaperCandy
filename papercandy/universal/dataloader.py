@@ -1,9 +1,9 @@
 from copy import copy as _copy
 from math import ceil as _ceil
 from abc import abstractmethod
+from typing import Iterator, Union
 from typing_extensions import Self
 from multiprocessing import Pool as _Pool
-from typing import Iterator, Union, ClassVar
 
 from papercandy import network as _network  # To make the DataCompound's inner type adaptable
 
@@ -18,14 +18,14 @@ class Dataset(object):
         raise NotImplementedError
 
     @abstractmethod
-    def cut(self, i: slice) -> ClassVar:
+    def cut(self, i: slice) -> Self:
         raise NotImplementedError
 
     @abstractmethod
     def get(self, i: int) -> _network.DataCompound:
         raise NotImplementedError
 
-    def __getitem__(self, item: Union[int, slice]) -> Union[_network.DataCompound, ClassVar]:
+    def __getitem__(self, item: Union[int, slice]) -> Union[_network.DataCompound, Self]:
         if isinstance(item, int):
             return self.get(item)
         if isinstance(item, slice):
@@ -36,12 +36,12 @@ class UniversalDataloader(Iterator):
     def __init__(self, dataset: Dataset):
         self.dataset: Dataset = dataset
 
-    def _get_item(self, item: slice, d_type: classmethod) -> ClassVar:
+    def _get_item(self, item: slice, d_type: classmethod) -> Self:
         if isinstance(item, slice):
             d_type(self.dataset)
         raise TypeError("`item` should be slice.")
 
-    def __getitem__(self, item: slice) -> ClassVar:
+    def __getitem__(self, item: slice) -> Self:
         o = _copy(self)
         o.dataset = self.dataset[item]
         return o

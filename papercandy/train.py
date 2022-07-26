@@ -1,8 +1,8 @@
 from typing import Any
 from torch.nn import Module as _Module
 
-from papercandy.universal import train as _train
 from papercandy import network as _network
+from papercandy.universal import train as _train
 
 
 TrainingMonitor = _train.TrainingMonitor

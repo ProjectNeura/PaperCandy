@@ -1,8 +1,9 @@
-from typing import Union, ClassVar
+from typing import Union
+from typing_extensions import Self
 from os import listdir as _listdir, PathLike
 
 
-from papercandy.universal import network as _network
+from papercandy import network as _network
 from papercandy.universal import dataloader as _dataloader
 
 
@@ -18,7 +19,7 @@ class ExampleDataset(Dataset):
     def __len__(self) -> int:
         return len(self.file_list)
 
-    def cut(self, i: slice) -> ClassVar:
+    def cut(self, i: slice) -> Self:
         o = ExampleDataset(self.src)
         o.file_list = self.file_list
         return o
