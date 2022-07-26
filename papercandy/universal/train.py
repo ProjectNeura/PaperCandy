@@ -45,7 +45,7 @@ class Trainer(object):
         return self._epoch
 
     def set_network(self, nc: _network.NetworkC):
-        if self._config.get("cuda_acceleration", must_exists=True, required_type=bool):
+        if self._config.get_predefined("cuda_acceleration", True):
             nc = nc.cuda()
         self._nc = nc
 
@@ -53,7 +53,7 @@ class Trainer(object):
         return self._nc
 
     def set_loss_function(self, lfc: _network.LossFunctionC):
-        if self._config.get("cuda_acceleration", must_exists=True, required_type=bool):
+        if self._config.get_predefined("cuda_acceleration", True):
             lfc = lfc.cuda()
         self._lfc = lfc
 
@@ -61,7 +61,7 @@ class Trainer(object):
         return self._lfc
 
     def set_optimizer(self, oc: _network.OptimizerC):
-        if self._config.get("cuda_acceleration", must_exists=True, required_type=bool):
+        if self._config.get_predefined("cuda_acceleration", True):
             oc = oc.cuda()
         self._oc = oc
 
