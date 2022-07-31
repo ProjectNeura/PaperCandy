@@ -69,27 +69,31 @@ class Trainer(object):
         return self._oc
 
     def train(self, num_batches: int = 1, monitor: TrainingMonitor = TrainingMonitor()):
+        self._check_requirements_and_raise_exception()
         monitor.on_start(self.get_epoch(), self.get_loss_function())
         epoch = 0
-        for data in self._dataloader:
+        print(self.get_dataloader())
+        for data in self.get_dataloader():
+            print(epoch, num_batches)
             if epoch >= num_batches:
                 break
-
             self.train_one_batch(data, monitor)
+            epoch += 1
         self._epoch += epoch
         monitor.on_finish(self.get_epoch(), self.get_loss_function())
 
-    def train_one_batch(self, data_batch: list[_network.DataCompound], monitor: TrainingMonitor):
+    def train_one_batch(self, data_batch: _network.DataCompound, monitor: TrainingMonitor):
+        self._check_requirements_and_raise_exception()
         monitor.on_batch_start(self.get_epoch(), self.get_loss_function())
-        for d in data_batch:
-            o, loss = self.train_single(self.get_epoch(), self.get_network().get(), self.get_loss_function().get(),
-                                        self.get_optimizer().get(), d)
-            self.losses.append(loss)
-            monitor.on_updated(self.get_epoch(), loss, d, o)
+        o, loss = self._train_one_batch(self.get_epoch(), self.get_network().get(), self.get_loss_function().get(),
+                                        self.get_optimizer().get(), data_batch)
+        self.losses.append(loss)
+        monitor.on_updated(self.get_epoch(), loss, data_batch, o)
         monitor.on_batch_finish(self.get_epoch(), self.get_loss_function())
 
     @abstractmethod
-    def train_single(self, epoch: int, network: Any, loss_function: Any, optimizer: Any, data: _network.DataCompound) \
+    def _train_one_batch(self, epoch: int, network: Any, loss_function: Any, optimizer: Any,
+                         data: _network.DataCompound) \
             -> [Any, float]:
         """
         :param epoch: global epoch

@@ -13,6 +13,9 @@ class DataCompound(_network.DataCompound):
     def __init__(self, data: _Tensor, target: _Tensor):
         super(DataCompound, self).__init__(data, target, d_type=_Tensor)
 
+    def unpack(self) -> [_Tensor, _Tensor]:
+        return super(DataCompound, self).unpack()
+
 
 LayerInfo = _network.LayerInfo
 LayerInfoList = _network.LayerInfoList

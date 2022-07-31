@@ -12,6 +12,9 @@ class DataCompound(object):
         self.data: d_type = data
         self.target: d_type = target
 
+    def unpack(self) -> [Any, Any]:
+        return self.data, self.target
+
 
 class Container(object):
     @abstractmethod
