@@ -72,11 +72,11 @@ class Trainer(object):
         self._check_requirements_and_raise_exception()
         monitor.on_start(self.get_epoch(), self.get_loss_function())
         epoch = 0
-        print(self.get_dataloader())
         for data in self.get_dataloader():
-            print(epoch, num_batches)
             if epoch >= num_batches:
                 break
+            if self._config.get_predefined("cuda_acceleration", True):
+                data = data.cuad()
             self.train_one_batch(data, monitor)
             epoch += 1
         self._epoch += epoch

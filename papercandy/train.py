@@ -12,7 +12,6 @@ class Trainer(_train.Trainer):
     def _train_one_batch(self, epoch: int, network: _Module, loss_function: _Module, optimizer: _Module,
                          data: _network.DataCompound) -> [Any, float]:
         optimizer.zero_grad()
-        print(network)
         output = network(data.data)
         current_loss = loss_function(output, data.target)
         current_loss.backward()
