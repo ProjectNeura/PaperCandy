@@ -20,6 +20,7 @@ class DataCompound(_network.DataCompound):
     def cuda(self) -> Self:
         o = _copy(self)
         o.data, o.target = self.data.cuda(), self.target.cuda()
+        return o
 
 
 LayerInfo = _network.LayerInfo
@@ -33,7 +34,7 @@ class NetworkC(_network.NetworkC):
     def cuda(self) -> Self:
         o = _copy(self)
         o._network = self._network.cuda()
-        return self
+        return o
 
     def get(self) -> _Module:
         return self._network
