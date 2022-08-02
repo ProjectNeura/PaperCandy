@@ -76,7 +76,7 @@ class Trainer(object):
             if epoch >= num_batches:
                 break
             if self._config.get_predefined("cuda_acceleration", True):
-                data = data.cuad()
+                data = data.cuda()
             self.train_one_batch(data, monitor)
             epoch += 1
         self._epoch += epoch

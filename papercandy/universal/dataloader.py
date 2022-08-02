@@ -27,7 +27,6 @@ class Dataset(object):
 
     def __getitem__(self, item: Union[int, slice]) -> Union[_network.DataCompound, Self]:
         if isinstance(item, int):
-            print(item)
             return self.get(item)
         if isinstance(item, slice):
             return self.cut(item)
