@@ -54,13 +54,13 @@ class Config(object):
                 raise SyntaxError("Config file didn't end.")
         return self
 
-    def get(self, key: str, must_exists: bool = False, required_type: type = str) -> Union[Any, None]:
+    def get(self, key: str, must_exists: bool = False, required_type: type = str, default_val: Any = None) -> Union[Any, None]:
         if key not in self._config.keys():
             if must_exists:
                 raise KeyError(f"No such configuration: \"{key}\".")
-            return None
+            return default_val
         val = self._config[key]
-        return required_type(val)
+        return val if required_type == str else required_type(val)
 
     def get_predefined(self, key: str, must_exists: bool = False) -> Union[Any, None]:
         required_type = str
