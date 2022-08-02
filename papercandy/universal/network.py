@@ -12,6 +12,10 @@ class DataCompound(object):
         self.data: d_type = data
         self.target: d_type = target
 
+    @abstractmethod
+    def cuda(self) -> Self:
+        raise NotImplementedError
+
     def unpack(self) -> [Any, Any]:
         return self.data, self.target
 

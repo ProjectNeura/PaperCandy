@@ -1,5 +1,6 @@
 from os import PathLike
 from typing import Union
+from copy import copy as _copy
 from typing_extensions import Self
 from torch.nn import Module as _Module
 from torch.nn import modules as _modules
@@ -16,6 +17,10 @@ class DataCompound(_network.DataCompound):
     def unpack(self) -> [_Tensor, _Tensor]:
         return super(DataCompound, self).unpack()
 
+    def cuda(self) -> Self:
+        o = _copy(self)
+        o.data, o.target = self.data.cuda(), self.target.cuda()
+
 
 LayerInfo = _network.LayerInfo
 LayerInfoList = _network.LayerInfoList
@@ -26,7 +31,8 @@ class NetworkC(_network.NetworkC):
         self._network: _Module = network
 
     def cuda(self) -> Self:
-        self._network = self._network.cuda()
+        o = _copy(self)
+        o._network = self._network.cuda()
         return self
 
     def get(self) -> _Module:
