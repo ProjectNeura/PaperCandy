@@ -93,8 +93,7 @@ class Trainer(object):
 
     @abstractmethod
     def _train_one_batch(self, epoch: int, network: Any, loss_function: Any, optimizer: Any,
-                         data: _network.DataCompound) \
-            -> [Any, float]:
+                         data: _network.DataCompound) -> [Any, float]:
         """
         :param epoch: global epoch
         :param network: network (not container)
