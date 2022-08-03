@@ -37,7 +37,7 @@ class Tester(object):
                 break
             if self._config.get_predefined("gpu_acceleration", True):
                 data = data.gpu()
-            o = self._test_one_batch(self._epoch, self._nc, data)
+            o = self._test_one_batch(self._epoch, self._nc.get(), data)
             res_list.append(_network.ResultCompound(data, o))
             local_epoch += 1
             self._epoch += 1

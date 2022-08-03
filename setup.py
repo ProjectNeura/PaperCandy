@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="paper-candy",
-    version="1.0.1b2",
+    version="1.0.1b3",
     author="ATATC",
     author_email="futerry@outlook.com",
     description="A loosely coupled lightweight framework for deep learning papers.",
