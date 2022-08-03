@@ -1,3 +1,4 @@
+from papercandy.test import *
 from papercandy.train import *
 from papercandy.config import *
 from papercandy.drawing import *
