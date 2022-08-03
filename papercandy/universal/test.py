@@ -20,6 +20,14 @@ class Tester(object):
         if not self._check_requirements():
             raise AttributeError("Tester hasn't been completely prepared.")
 
+    def set_network(self, nc: _network.NetworkC):
+        if self._config.get_predefined("gpu_acceleration", True):
+            nc = nc.gpu()
+        self._nc = nc
+
+    def get_network(self) -> _network.NetworkC:
+        return self._nc
+
     def test(self, num_batches: int) -> list[_network.ResultCompound]:
         self._check_requirements_and_raise_exception()
         res_list = []
