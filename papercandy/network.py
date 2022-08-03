@@ -19,7 +19,27 @@ class DataCompound(_network.DataCompound):
 
     def gpu(self) -> Self:
         o = _copy(self)
-        o.data, o.target = self.data.gpu(), self.target.gpu()
+        o.data, o.target = self.data.cuda(), self.target.cuda()
+        return o
+
+    def cpu(self) -> Self:
+        o = _copy(self)
+        o.data, o.target = self.data.cpu(), self.target.cpu()
+        return o
+
+
+class ResultCompound(_network.ResultCompound):
+    def __init__(self, input_data: DataCompound, output: _Tensor):
+        super(ResultCompound, self).__init__(input_data, output, d_type=_Tensor)
+
+    def gpu(self) -> Self:
+        o = _copy(self)
+        o.input_data, o.output = self.input_data.gpu(), self.output.cuda()
+        return o
+
+    def cpu(self) -> Self:
+        o = _copy(self)
+        o.input_data, o.output = self.input_data.cpu(), self.output.cpu()
         return o
 
 
@@ -36,11 +56,16 @@ class NetworkC(_network.NetworkC):
         o._network = self._network.cuda()
         return o
 
+    def cpu(self) -> Self:
+        o = _copy(self)
+        o._network = self._network.cpu()
+        return o
+
     def get(self) -> _Module:
         return self._network
 
     def save(self, filename: Union[str, PathLike]):
-        _save(self.get(), filename)
+        _save(self._network.state_dict(), filename)
 
     def load(self, filename: Union[str, PathLike]) -> Self:
         self._network.load_state_dict(_load(filename))
@@ -91,6 +116,11 @@ class LossFunctionC(_network.LossFunctionC):
         o._loss_function = self._loss_function.cuda()
         return o
 
+    def cpu(self) -> Self:
+        o = _copy(self)
+        o._loss_function = self._loss_function.cpu()
+        return o
+
     def get(self) -> _Module:
         return self._loss_function
 
@@ -108,11 +138,14 @@ class OptimizerC(_network.OptimizerC):
     def gpu(self) -> Self:
         return self
 
+    def cpu(self) -> Self:
+        return self
+
     def get(self) -> _Optimizer:
         return self._optimizer
 
     def save(self, filename: Union[str, PathLike]):
-        _save(self.get(), filename)
+        _save(self._optimizer.state_dict(), filename)
 
     def load(self, filename: Union[str, PathLike]) -> Self:
         self._optimizer.load_state_dict(_load(filename))

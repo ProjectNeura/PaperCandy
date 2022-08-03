@@ -1,5 +1,4 @@
 from typing import Any
-from torch import Tensor as _Tensor
 from torch.nn import Module as _Module
 
 from papercandy import network as _network
@@ -18,8 +17,7 @@ class Trainer(_train.Trainer):
 
 
 class TrainingMonitor(_train.TrainingMonitor):
-    def on_updated(self, trainer: Trainer, epoch: int, loss: float, input_data: _network.DataCompound,
-                   output: _Tensor): pass
+    def on_updated(self, trainer: Trainer, epoch: int, loss: float, result: _network.ResultCompound): pass
 
     def on_batch_finished(self, trainer: Trainer, epoch: int): pass
 

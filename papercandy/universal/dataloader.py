@@ -49,7 +49,7 @@ class UniversalDataloader(Iterator):
         return o
 
     def __iter__(self) -> Self:
-        return self
+        return _copy(self)
 
     def __call__(self) -> _network.DataCompound:
         return next(self)
@@ -82,7 +82,7 @@ class Dataloader(UniversalDataloader):
         self._pool: Union[_Pool, None] = None if num_works < 2 else _Pool(num_works)
 
     def __iter__(self) -> Iterator:
-        return self
+        return _copy(self)
 
     def __len__(self) -> int:
         return _ceil(len(self.dataset) / self._batch_size)

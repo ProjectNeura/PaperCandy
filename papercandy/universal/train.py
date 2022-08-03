@@ -6,14 +6,13 @@ from papercandy.universal import dataloader as _dl, config as _cfg
 
 
 class TrainingMonitor(object):
-    def on_updated(self, trainer, epoch: int, loss: float, input_data: _network.DataCompound, output: Any):
+    def on_updated(self, trainer, epoch: int, loss: float, result: _network.ResultCompound):
         """
         :param trainer: trainer object
         :type trainer: Trainer
         :param epoch: epoch number
         :param loss: loss value
-        :param input_data: input data compound
-        :param output: network output
+        :param result: result compound
         """
         pass
 
@@ -35,12 +34,12 @@ class TrainingMonitor(object):
 
 
 class Trainer(object):
-    def __init__(self, config: _cfg.Config = None, dataloader: _dl.Dataloader = None):
+    def __init__(self, config: _cfg.Config, dataloader: _dl.Dataloader):
         self._nc: Union[_network.NetworkC, None] = None
         self._lfc: Union[_network.LossFunctionC, None] = None
         self._oc: Union[_network.OptimizerC, None] = None
-        self._config: Union[_cfg.Config, None] = config
-        self._dataloader: Union[_dl.Dataloader, None] = dataloader
+        self._config: _cfg.Config = config
+        self._dataloader: _dl.Dataloader = dataloader
         self._epoch: int = 0
         self.losses: list[float] = []
 
@@ -87,10 +86,13 @@ class Trainer(object):
 
     def train(self, num_batches: int, monitor: TrainingMonitor = TrainingMonitor()):
         """
+        Train the network by traversing the dataloader until epoch reaches either `num_batches` or the length of the
+            dataloader.
+        Fill `num_batches` with an integer that is larger than the length of the dataloader if you want to go through
+            the whole dataset.
         NOTICE: When every time this method being called it'll start from the beginning of the dataloader.
         :param num_batches: batches limit
         :param monitor: training monitor
-        :return:
         """
         self._check_requirements_and_raise_exception()
         local_epoch = 0
@@ -99,17 +101,13 @@ class Trainer(object):
                 break
             if self._config.get_predefined("gpu_acceleration", True):
                 data = data.gpu()
-            self.train_one_batch(data, monitor)
+            o, loss = self._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data)
+            self.losses.append(loss)
+            monitor.on_updated(self, self._epoch, loss, _network.ResultCompound(data, o))
+            monitor.on_batch_finished(self, self._epoch)
             local_epoch += 1
             self._epoch += 1
         monitor.on_finished(self, self._epoch)
-
-    def train_one_batch(self, data_batch: _network.DataCompound, monitor: TrainingMonitor):
-        self._check_requirements_and_raise_exception()
-        o, loss = self._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data_batch)
-        self.losses.append(loss)
-        monitor.on_updated(self, self._epoch, loss, data_batch, o)
-        monitor.on_batch_finished(self, self._epoch)
 
     @abstractmethod
     def _train_one_batch(self, epoch: int, network: Any, loss_function: Any, optimizer: Any,
@@ -119,7 +117,7 @@ class Trainer(object):
         :param network: network (not container)
         :param loss_function: loss function (not container)
         :param optimizer: optimizer (not container)
-        :param data: single data, not batched
-        :return: network output, loss
+        :param data: data batch in form of a data compound
+        :return: {network output, loss}
         """
         raise NotImplementedError

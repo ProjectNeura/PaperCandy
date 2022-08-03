@@ -16,8 +16,26 @@ class DataCompound(object):
     def gpu(self) -> Self:
         raise NotImplementedError
 
+    @abstractmethod
+    def cpu(self) -> Self:
+        raise NotImplementedError
+
     def unpack(self) -> [Any, Any]:
         return self.data, self.target
+
+
+class ResultCompound(object):
+    def __init__(self, input_data: DataCompound, output: Any, d_type: type = Any):
+        self.input_data: DataCompound = input_data
+        self.output: d_type = output
+
+    @abstractmethod
+    def gpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def cpu(self) -> Self:
+        raise NotImplementedError
 
 
 class Container(object):
@@ -27,6 +45,10 @@ class Container(object):
 
     @abstractmethod
     def gpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def cpu(self) -> Self:
         raise NotImplementedError
 
     @abstractmethod
