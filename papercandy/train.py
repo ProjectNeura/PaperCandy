@@ -1,11 +1,13 @@
 from typing import Any
+from torch import Tensor as _Tensor
 from torch.nn import Module as _Module
 
 from papercandy import network as _network
 from papercandy.universal import train as _train
 
 
-TrainingMonitor = _train.TrainingMonitor
+class TrainingMonitor(_train.TrainingMonitor):
+    def on_updated(self, epoch: int, loss: float, input_data: _network.DataCompound, output: _Tensor): pass
 
 
 class Trainer(_train.Trainer):

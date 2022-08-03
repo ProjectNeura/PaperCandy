@@ -6,15 +6,7 @@ from papercandy.universal import dataloader as _dl, config as _cfg
 
 
 class TrainingMonitor(object):
-    def on_start(self, epoch: int, loss_function: _network.LossFunctionC): pass
-
-    def on_batch_start(self, epoch: int, loss_function: _network.LossFunctionC): pass
-
-    def on_updated(self, epoch: int, loss: float, input_data: Any, output_data: Any): pass
-
-    def on_batch_finish(self, epoch: int, loss_function: _network.LossFunctionC): pass
-
-    def on_finish(self, epoch: int, loss_function: _network.LossFunctionC): pass
+    def on_updated(self, epoch: int, loss: float, input_data: _network.DataCompound, output: Any): pass
 
 
 class Trainer(object):
@@ -70,7 +62,6 @@ class Trainer(object):
 
     def train(self, num_batches: int = 1, monitor: TrainingMonitor = TrainingMonitor()):
         self._check_requirements_and_raise_exception()
-        monitor.on_start(self.get_epoch(), self.get_loss_function())
         epoch = 0
         for data in self.get_dataloader():
             if epoch >= num_batches:
@@ -80,16 +71,13 @@ class Trainer(object):
             self.train_one_batch(data, monitor)
             epoch += 1
         self._epoch += epoch
-        monitor.on_finish(self.get_epoch(), self.get_loss_function())
 
     def train_one_batch(self, data_batch: _network.DataCompound, monitor: TrainingMonitor):
         self._check_requirements_and_raise_exception()
-        monitor.on_batch_start(self.get_epoch(), self.get_loss_function())
         o, loss = self._train_one_batch(self.get_epoch(), self.get_network().get(), self.get_loss_function().get(),
                                         self.get_optimizer().get(), data_batch)
         self.losses.append(loss)
         monitor.on_updated(self.get_epoch(), loss, data_batch, o)
-        monitor.on_batch_finish(self.get_epoch(), self.get_loss_function())
 
     @abstractmethod
     def _train_one_batch(self, epoch: int, network: Any, loss_function: Any, optimizer: Any,
