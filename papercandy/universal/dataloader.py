@@ -87,7 +87,7 @@ class Dataloader(UniversalDataloader):
     def __len__(self) -> int:
         return _ceil(len(self.dataset) / self._batch_size)
 
-    def __getitem__(self, item: Union[int, slice]) -> Union[_network.DataCompound, Self]:
+    def __getitem__(self, item: Union[int, slice]) -> Union[list[_network.DataCompound], Self]:
         """
         In this method, all indexes are batch index instead of item indexes.
         :param item: int for a data compound(batched), slice for cutting

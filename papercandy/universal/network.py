@@ -34,7 +34,11 @@ class Container(object):
         raise NotImplementedError
 
     @abstractmethod
-    def save(self, path: Union[str, PathLike]):
+    def save(self, filename: Union[str, PathLike]):
+        raise NotImplementedError
+
+    @abstractmethod
+    def load(self, filename: Union[str, PathLike]) -> Self:
         raise NotImplementedError
 
 

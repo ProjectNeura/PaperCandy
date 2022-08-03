@@ -5,7 +5,7 @@ from typing_extensions import Self
 from torch.nn import Module as _Module
 from torch.nn import modules as _modules
 from torch.optim import Optimizer as _Optimizer
-from torch import Tensor as _Tensor, save as _save
+from torch import Tensor as _Tensor, save as _save, load as _load
 
 from papercandy.universal import network as _network
 
@@ -39,8 +39,12 @@ class NetworkC(_network.NetworkC):
     def get(self) -> _Module:
         return self._network
 
-    def save(self, path: Union[str, PathLike]):
-        _save(self.get(), path)
+    def save(self, filename: Union[str, PathLike]):
+        _save(self.get(), filename)
+
+    def load(self, filename: Union[str, PathLike], **kwargs) -> Self:
+        self._network.load_state_dict(_load(filename))
+        return self
 
     def structure(self) -> LayerInfoList[LayerInfo]:
         lil = LayerInfoList()
@@ -83,14 +87,18 @@ class LossFunctionC(_network.LossFunctionC):
         self._loss_function: _Module = loss_function
 
     def gpu(self) -> Self:
-        self._loss_function = self._loss_function.cuda()
-        return self
+        o = _copy(self)
+        o._loss_function = self._loss_function.cuda()
+        return o
 
     def get(self) -> _Module:
         return self._loss_function
 
-    def save(self, path: Union[str, PathLike]):
-        _save(self.get(), path)
+    def save(self, filename: Union[str, PathLike]):
+        pass
+
+    def load(self, filename: Union[str, PathLike]) -> Self:
+        return self
 
 
 class OptimizerC(_network.OptimizerC):
@@ -103,5 +111,9 @@ class OptimizerC(_network.OptimizerC):
     def get(self) -> _Optimizer:
         return self._optimizer
 
-    def save(self, path: Union[str, PathLike]):
-        _save(self.get(), path)
+    def save(self, filename: Union[str, PathLike]):
+        _save(self.get(), filename)
+
+    def load(self, filename: Union[str, PathLike]) -> Self:
+        self._optimizer.load_state_dict(_load(filename))
+        return self

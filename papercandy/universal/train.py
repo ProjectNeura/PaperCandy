@@ -6,7 +6,32 @@ from papercandy.universal import dataloader as _dl, config as _cfg
 
 
 class TrainingMonitor(object):
-    def on_updated(self, epoch: int, loss: float, input_data: _network.DataCompound, output: Any): pass
+    def on_updated(self, trainer, epoch: int, loss: float, input_data: _network.DataCompound, output: Any):
+        """
+        :param trainer: trainer object
+        :type trainer: Trainer
+        :param epoch: epoch number
+        :param loss: loss value
+        :param input_data: input data compound
+        :param output: network output
+        """
+        pass
+
+    def on_batch_finished(self, trainer, epoch: int):
+        """
+        :param trainer: trainer object
+        :type trainer: Trainer
+        :param epoch: epoch number
+        """
+        pass
+
+    def on_finished(self, trainer, epoch: int):
+        """
+        :param trainer: trainer object
+        :type trainer: Trainer
+        :param epoch: epoch number
+        """
+        pass
 
 
 class Trainer(object):
@@ -60,24 +85,31 @@ class Trainer(object):
     def get_optimizer(self) -> Union[_network.OptimizerC, None]:
         return self._oc
 
-    def train(self, num_batches: int = 1, monitor: TrainingMonitor = TrainingMonitor()):
+    def train(self, num_batches: int = int("inf"), monitor: TrainingMonitor = TrainingMonitor()):
+        """
+        NOTICE: When every time this method being called it'll start from the beginning of the dataloader.
+        :param num_batches: batches limit
+        :param monitor: training monitor
+        :return:
+        """
         self._check_requirements_and_raise_exception()
-        epoch = 0
-        for data in self.get_dataloader():
-            if epoch >= num_batches:
+        local_epoch = 0
+        for data in self._dataloader:
+            if local_epoch >= num_batches:
                 break
             if self._config.get_predefined("gpu_acceleration", True):
                 data = data.gpu()
             self.train_one_batch(data, monitor)
-            epoch += 1
-        self._epoch += epoch
+            local_epoch += 1
+            self._epoch += 1
+        monitor.on_finished(self, self._epoch)
 
     def train_one_batch(self, data_batch: _network.DataCompound, monitor: TrainingMonitor):
         self._check_requirements_and_raise_exception()
-        o, loss = self._train_one_batch(self.get_epoch(), self.get_network().get(), self.get_loss_function().get(),
-                                        self.get_optimizer().get(), data_batch)
+        o, loss = self._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data_batch)
         self.losses.append(loss)
-        monitor.on_updated(self.get_epoch(), loss, data_batch, o)
+        monitor.on_updated(self, self._epoch, loss, data_batch, o)
+        monitor.on_batch_finished(self, self._epoch)
 
     @abstractmethod
     def _train_one_batch(self, epoch: int, network: Any, loss_function: Any, optimizer: Any,

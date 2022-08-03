@@ -11,5 +11,5 @@ Bool = _config.Bool
 def new_config(filename: Union[str, PathLike]) -> Config:
     cfg = _config.new_config(filename)
     if not _is_available():
-        cfg.put("gpu_acceleration", "False")
+        cfg.set("gpu_acceleration", "False")
     return cfg

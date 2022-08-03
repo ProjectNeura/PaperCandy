@@ -25,7 +25,7 @@ class Config(object):
     def __contains__(self, key: str) -> bool:
         return key in self._config.keys()
 
-    def put(self, key: str, value: str):
+    def set(self, key: str, value: str):
         if hasattr(self, key):
             raise KeyError(f"{key} is used.")
         setattr(self, key, value)
@@ -48,7 +48,7 @@ class Config(object):
                     last = line
                     continue
                 key, val = sp[0], "".join(sp[1:])
-                self.put(key, val)
+                self.set(key, val)
                 last = ""
             if last != "":
                 raise SyntaxError("Config file didn't end.")
@@ -75,5 +75,5 @@ def new_config(filename: Union[str, PathLike]) -> Config:
     # Check required configurations
     for req_cfg_key in _required_configs.keys():
         if req_cfg_key not in config:
-            config.put(req_cfg_key, _required_configs[req_cfg_key][0])
+            config.set(req_cfg_key, _required_configs[req_cfg_key][0])
     return config
