@@ -5,14 +5,14 @@ from multiprocessing import cpu_count as _cpu_count
 
 
 def Bool(s: str) -> bool:
-    return s == "True"
+    return s.lower() == "true"
 
 
 _required_configs: dict = {
     "data": ("./data", str),
     "batch_size": ("16", int),
     "num_works": (str(_cpu_count()), int),
-    "cuda_acceleration": ("False", Bool),
+    "gpu_acceleration": ("False", Bool),
     "device": ("0", int),
 }
 

@@ -17,9 +17,9 @@ class DataCompound(_network.DataCompound):
     def unpack(self) -> [_Tensor, _Tensor]:
         return super(DataCompound, self).unpack()
 
-    def cuda(self) -> Self:
+    def gpu(self) -> Self:
         o = _copy(self)
-        o.data, o.target = self.data.cuda(), self.target.cuda()
+        o.data, o.target = self.data.gpu(), self.target.gpu()
         return o
 
 
@@ -31,7 +31,7 @@ class NetworkC(_network.NetworkC):
     def __init__(self, network: _Module):
         self._network: _Module = network
 
-    def cuda(self) -> Self:
+    def gpu(self) -> Self:
         o = _copy(self)
         o._network = self._network.cuda()
         return o
@@ -82,7 +82,7 @@ class LossFunctionC(_network.LossFunctionC):
     def __init__(self, loss_function: _Module):
         self._loss_function: _Module = loss_function
 
-    def cuda(self) -> Self:
+    def gpu(self) -> Self:
         self._loss_function = self._loss_function.cuda()
         return self
 
@@ -97,7 +97,7 @@ class OptimizerC(_network.OptimizerC):
     def __init__(self, optimizer: _Optimizer):
         self._optimizer: _Optimizer = optimizer
 
-    def cuda(self) -> Self:
+    def gpu(self) -> Self:
         return self
 
     def get(self) -> _Optimizer:

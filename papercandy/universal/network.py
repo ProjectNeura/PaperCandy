@@ -13,7 +13,7 @@ class DataCompound(object):
         self.target: d_type = target
 
     @abstractmethod
-    def cuda(self) -> Self:
+    def gpu(self) -> Self:
         raise NotImplementedError
 
     def unpack(self) -> [Any, Any]:
@@ -26,7 +26,7 @@ class Container(object):
         raise NotImplementedError
 
     @abstractmethod
-    def cuda(self) -> Self:
+    def gpu(self) -> Self:
         raise NotImplementedError
 
     @abstractmethod

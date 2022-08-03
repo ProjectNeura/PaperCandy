@@ -104,9 +104,10 @@ class Dataloader(UniversalDataloader):
         if rest <= 0:
             raise StopIteration
         batch_size = self._batch_size if rest > self._batch_size else rest
-        data = self.load_batch(self._iter_pointer, self._iter_pointer + batch_size)
-        self._iter_pointer += batch_size
-        return data
+        try:
+            return self.load_batch(self._iter_pointer, self._iter_pointer + batch_size)
+        finally:
+            self._iter_pointer += batch_size
 
     def _multiply_slice(self, s: slice) -> slice:
         start, stop, step = None, None, None

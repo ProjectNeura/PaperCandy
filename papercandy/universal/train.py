@@ -37,24 +37,24 @@ class Trainer(object):
         return self._epoch
 
     def set_network(self, nc: _network.NetworkC):
-        if self._config.get_predefined("cuda_acceleration", True):
-            nc = nc.cuda()
+        if self._config.get_predefined("gpu_acceleration", True):
+            nc = nc.gpu()
         self._nc = nc
 
     def get_network(self) -> Union[_network.NetworkC, None]:
         return self._nc
 
     def set_loss_function(self, lfc: _network.LossFunctionC):
-        if self._config.get_predefined("cuda_acceleration", True):
-            lfc = lfc.cuda()
+        if self._config.get_predefined("gpu_acceleration", True):
+            lfc = lfc.gpu()
         self._lfc = lfc
 
     def get_loss_function(self) -> Union[_network.LossFunctionC, None]:
         return self._lfc
 
     def set_optimizer(self, oc: _network.OptimizerC):
-        if self._config.get_predefined("cuda_acceleration", True):
-            oc = oc.cuda()
+        if self._config.get_predefined("gpu_acceleration", True):
+            oc = oc.gpu()
         self._oc = oc
 
     def get_optimizer(self) -> Union[_network.OptimizerC, None]:
@@ -66,8 +66,8 @@ class Trainer(object):
         for data in self.get_dataloader():
             if epoch >= num_batches:
                 break
-            if self._config.get_predefined("cuda_acceleration", True):
-                data = data.cuda()
+            if self._config.get_predefined("gpu_acceleration", True):
+                data = data.gpu()
             self.train_one_batch(data, monitor)
             epoch += 1
         self._epoch += epoch
