@@ -42,7 +42,7 @@ class NetworkC(_network.NetworkC):
     def save(self, filename: Union[str, PathLike]):
         _save(self.get(), filename)
 
-    def load(self, filename: Union[str, PathLike], **kwargs) -> Self:
+    def load(self, filename: Union[str, PathLike]) -> Self:
         self._network.load_state_dict(_load(filename))
         return self
 

@@ -85,7 +85,7 @@ class Trainer(object):
     def get_optimizer(self) -> Union[_network.OptimizerC, None]:
         return self._oc
 
-    def train(self, num_batches: int = int("inf"), monitor: TrainingMonitor = TrainingMonitor()):
+    def train(self, num_batches: int, monitor: TrainingMonitor = TrainingMonitor()):
         """
         NOTICE: When every time this method being called it'll start from the beginning of the dataloader.
         :param num_batches: batches limit
