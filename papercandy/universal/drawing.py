@@ -257,7 +257,7 @@ def draw(obj: Any, *args, **kwargs) -> Drawer:
 
 @draw.register(_network.LayerInfoList)
 def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1)) -> Drawer:
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1)) -> NetworkDrawer:
     drawer = NetworkDrawer(*lil(interval), bg, margin)
     offset_x, offset_y = 0, 0
     for layer in lil:
@@ -269,11 +269,11 @@ def _(lil: _network.LayerInfoList, interval: Union[int, float] = 0.1, color: Uni
 
 @draw.register(_network.NetworkC)
 def _(network: _network.NetworkC, interval: Union[int, float] = 0.1, color: Union[int, tuple[int]] = 0,
-      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1)) -> Drawer:
-    return draw(network.structure(), interval, color, bg, margin)
+      bg: Union[int, tuple[int]] = 255, margin: Union[int, float, tuple, list] = (0.2, 0.1)) -> NetworkDrawer:
+    return _utils.assume_type_matches(draw(network.structure(), interval, color, bg, margin))
 
 
 @draw.register(_train.Trainer)
-def _(trainer: _train.Trainer, width: int, height: int, color: str = "black", bg: str = "white") -> Drawer:
+def _(trainer: _train.Trainer, width: int, height: int, color: str = "black", bg: str = "white") -> LossesDrawer:
     drawer = LossesDrawer(width, height, bg)
     return drawer(trainer.losses, color)
