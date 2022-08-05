@@ -216,6 +216,30 @@ class LossesDrawer(Drawer):
         _plt.ylabel("Loss")
         return self
 
+    def limit(self, n: float) -> Self:
+        self._losses = [i for i in self._losses if i <= n]
+        return self
+
+    def scale(self, ratio: float) -> Self:
+        if ratio > 1:
+            raise ValueError("Not expandable, which means `ratio` cannot be bigger than 1.")
+        if ratio <= 0:
+            raise ValueError("`ratio` cannot be negative.")
+        ratio = ratio * 2
+        if ratio < 1:
+            ratio = 1 / ratio
+        ratio = round(ratio)
+        g_size = ratio + 1
+        if ratio < 1:
+            for i in range(len(self._losses) // g_size):
+                self._losses.pop(ratio - i + i * g_size)
+        else:
+            self._losses = self._losses[::g_size]
+        return self
+
+    def remove(self, n: int) -> Self:
+        return self.scale(n / len(self._losses))
+
     def show(self, title: str = "Training Loss") -> Self:
         _plt.title(title)
         _plt.show()
