@@ -102,7 +102,7 @@ class Trainer(object):
                 break
             if self._config.get_predefined("gpu_acceleration", True):
                 data = data.gpu()
-            o, loss = Trainer._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data)
+            o, loss = self._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data)
             self.losses.append(loss)
             monitor.on_updated(self, self._epoch, loss, _network.ResultCompound(data, o))
             monitor.on_batch_finished(self, self._epoch)
