@@ -147,7 +147,7 @@ class TrainerUtils(object):
             for i in range(len(trainer.losses) // g_size):
                 trainer.losses.pop(ratio - i + i * g_size)
         else:
-            trainer._losses = trainer.losses[::g_size]
+            trainer.losses = trainer.losses[::g_size]
         return trainer
 
     @staticmethod
