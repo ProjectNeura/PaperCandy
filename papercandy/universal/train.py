@@ -1,5 +1,6 @@
 from typing import Union, Any
 from abc import abstractmethod
+from copy import copy as _copy
 
 from papercandy import network as _network
 from papercandy.universal import dataloader as _dl, config as _cfg
@@ -126,11 +127,13 @@ class Trainer(object):
 class TrainerUtils(object):
     @staticmethod
     def limit(trainer: Trainer, n: float) -> Trainer:
+        trainer = _copy(trainer)
         trainer.losses = [i for i in trainer.losses if i <= n]
         return trainer
 
     @staticmethod
     def scale(trainer: Trainer, ratio: float) -> Trainer:
+        trainer = _copy(trainer)
         if ratio > 1:
             raise ValueError("Not expandable, which means `ratio` cannot be bigger than 1.")
         if ratio <= 0:
