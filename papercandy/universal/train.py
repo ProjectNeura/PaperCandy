@@ -101,7 +101,7 @@ class Trainer(object):
                 break
             if self._config.get_predefined("gpu_acceleration", True):
                 data = data.gpu()
-            o, loss = self._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data)
+            o, loss = Trainer._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data)
             self.losses.append(loss)
             monitor.on_updated(self, self._epoch, loss, _network.ResultCompound(data, o))
             monitor.on_batch_finished(self, self._epoch)
@@ -121,3 +121,33 @@ class Trainer(object):
         :return: {network output, loss}
         """
         raise NotImplementedError
+    
+
+class TrainerUtils(object):
+    @staticmethod
+    def limit(trainer: Trainer, n: float) -> Trainer:
+        trainer.losses = [i for i in trainer.losses if i <= n]
+        return trainer
+
+    @staticmethod
+    def scale(trainer: Trainer, ratio: float) -> Trainer:
+        if ratio > 1:
+            raise ValueError("Not expandable, which means `ratio` cannot be bigger than 1.")
+        if ratio <= 0:
+            raise ValueError("`ratio` cannot be negative.")
+        ratio = ratio * 2
+        if ratio < 1:
+            ratio = 1 / ratio
+        ratio = round(ratio)
+        g_size = ratio + 1
+        if ratio < 1:
+            for i in range(len(trainer.losses) // g_size):
+                trainer.losses.pop(ratio - i + i * g_size)
+        else:
+            trainer._losses = trainer.losses[::g_size]
+        return trainer
+
+    @staticmethod
+    def remove(trainer: Trainer, n: int) -> Trainer:
+        return TrainerUtils.scale(trainer, n / len(trainer.losses))
+

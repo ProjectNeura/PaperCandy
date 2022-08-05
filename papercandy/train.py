@@ -22,3 +22,7 @@ class TrainingMonitor(_train.TrainingMonitor):
     def on_batch_finished(self, trainer: Trainer, epoch: int): pass
 
     def on_finished(self, trainer: Trainer, epoch: int): pass
+
+
+class TrainerUtils(_train.TrainerUtils):
+    pass

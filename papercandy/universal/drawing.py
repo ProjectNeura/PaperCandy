@@ -79,12 +79,12 @@ class NetworkDrawer(Drawer):
         self._display_height: int = height + self._margin_top + self._margin_bottom
         # create canvas (grayscale or multichannel)
         self._canvas: _np.ndarray = _np.ones((self._display_height, self._display_width), dtype=_np.uint8) * bg \
-            if isinstance(bg, int) else self._create_canvas(self._display_width, self._display_height, bg)
+            if isinstance(bg, int) else NetworkDrawer._create_canvas(self._display_width, self._display_height, bg)
 
     def __call__(self, layer_width: int, graph_width: int, layer_height: int, layer_angle: int, offset_x: int,
                  offset_y: int, text: str, description: str = "", color: Union[int, tuple[int]] = 0) -> Self:
         self.draw_line(0, 0, 0, layer_height, graph_width, offset_x, offset_y, color)
-        h = self.cal_bottom_line(layer_width, layer_angle)
+        h = NetworkDrawer.cal_bottom_line(layer_width, layer_angle)
         self.draw_line(0, 0, graph_width, h, graph_width, offset_x, offset_y, color) \
             .draw_line(graph_width, h, graph_width, h + layer_height, graph_width, offset_x, offset_y, color) \
             .draw_line(0, layer_height, graph_width, h + layer_height, graph_width, offset_x, offset_y, color)
@@ -216,30 +216,6 @@ class LossesDrawer(Drawer):
         _plt.ylabel("Loss")
         return self
 
-    def limit(self, n: float) -> Self:
-        self._losses = [i for i in self._losses if i <= n]
-        return self
-
-    def scale(self, ratio: float) -> Self:
-        if ratio > 1:
-            raise ValueError("Not expandable, which means `ratio` cannot be bigger than 1.")
-        if ratio <= 0:
-            raise ValueError("`ratio` cannot be negative.")
-        ratio = ratio * 2
-        if ratio < 1:
-            ratio = 1 / ratio
-        ratio = round(ratio)
-        g_size = ratio + 1
-        if ratio < 1:
-            for i in range(len(self._losses) // g_size):
-                self._losses.pop(ratio - i + i * g_size)
-        else:
-            self._losses = self._losses[::g_size]
-        return self
-
-    def remove(self, n: int) -> Self:
-        return self.scale(n / len(self._losses))
-
     def show(self, title: str = "Training Loss") -> Self:
         _plt.title(title)
         _plt.show()
@@ -251,7 +227,7 @@ class LossesDrawer(Drawer):
 
 
 @singledispatch
-def draw(obj: Any, *args, **kwargs) -> Drawer:
+def draw(obj: Any, *args, **kwargs) -> Union[NetworkDrawer, LossesDrawer]:
     raise TypeError(f"No known case for type {type(obj)}, args: {args}, kwargs: {kwargs}.")
 
 

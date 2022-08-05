@@ -94,7 +94,7 @@ class Dataloader(UniversalDataloader):
         :return: a data compound(batched) or another edited object
         """
         if isinstance(item, int):
-            return self._load_batch(self.dataset, self._batch_size, self._batch_size * item)
+            return Dataloader._load_batch(self.dataset, self._batch_size, self._batch_size * item)
         if isinstance(item, slice):
             item = self._multiply_slice(item)
             return super(Dataloader, self).__getitem__(item)
@@ -127,7 +127,7 @@ class Dataloader(UniversalDataloader):
         res_list = []
         size = stop - start
         if self._num_works == 1:
-            res_list += self._load_batch(self.dataset, size, start)
+            res_list += Dataloader._load_batch(self.dataset, size, start)
         else:
             self._pool = _Pool(self._num_works)
             spw = int(size / self._num_works)
@@ -136,9 +136,9 @@ class Dataloader(UniversalDataloader):
             work_res_list = []
             for i in range(self._num_works - 1):
                 work_res_list.append(
-                    self._pool.apply_async(self._load_batch, args=(self.dataset, spw, start + i * spw)))
+                    self._pool.apply_async(Dataloader._load_batch, args=(self.dataset, spw, start + i * spw)))
             work_res_list.append(
-                self._pool.apply_async(self._load_batch, args=(self.dataset, rest, start + size - rest)))
+                self._pool.apply_async(Dataloader._load_batch, args=(self.dataset, rest, start + size - rest)))
             self._pool.close()
             self._pool.join()
             for work_res in work_res_list:
