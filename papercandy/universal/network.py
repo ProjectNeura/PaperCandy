@@ -37,6 +37,9 @@ class ResultCompound(object):
     def cpu(self) -> Self:
         raise NotImplementedError
 
+    def unpack(self) -> [DataCompound, Any]:
+        return self.input_data, self.output
+
 
 class Container(object):
     @abstractmethod
@@ -65,6 +68,9 @@ class Container(object):
 
 
 class LayerInfo(object):
+    """
+    The information container provided to the drawer.
+    """
     def __init__(self, width: int, height: int, angle: int, name: str, description: str = ""):
         self.width: int = width
         self.g_width: int = round(_cos(_utils.angle2radian(angle)) * width)
@@ -77,9 +83,14 @@ class LayerInfo(object):
         return self.width, self.g_width, self.height, self.angle, self.name, self.description
 
     def parse_interval(self, interval: Union[int, float]) -> int:
-        if interval >= 1:
+        """
+        Calculate the actual interval if `interval` represents a ratio, or directly return it.
+        :param interval: int for the actual number, float for a ratio
+        :return: the actual interval
+        """
+        if isinstance(interval, int):
             return interval
-        return interval * self.g_width
+        return round(interval * self.g_width)
 
 
 class LayerInfoList(Sequence):
@@ -96,6 +107,11 @@ class LayerInfoList(Sequence):
         return self._layers[item]
 
     def __call__(self, interval: Union[int, float]) -> (int, int):
+        """
+        Calculate the total size of the canvas.
+        :param interval: int for the actual number, float for a ratio
+        :return: width, height
+        """
         if interval < 0:
             raise ValueError("`interval` cannot be negative.")
         if len(self._layers) < 1:
@@ -118,6 +134,10 @@ class LayerInfoList(Sequence):
         return LayerInfoList(*(self._layers + other.get_layers()))
 
     def reverse(self) -> Self:
+        """
+        Reverse the order.
+        :return: self
+        """
         self._layers.reverse()
         return self
 

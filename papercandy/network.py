@@ -14,9 +14,6 @@ class DataCompound(_network.DataCompound):
     def __init__(self, data: _Tensor, target: _Tensor):
         super(DataCompound, self).__init__(data, target, d_type=_Tensor)
 
-    def unpack(self) -> [_Tensor, _Tensor]:
-        return super(DataCompound, self).unpack()
-
     def gpu(self) -> Self:
         o = _copy(self)
         o.data, o.target = self.data.cuda(), self.target.cuda()
@@ -26,6 +23,9 @@ class DataCompound(_network.DataCompound):
         o = _copy(self)
         o.data, o.target = self.data.cpu(), self.target.cpu()
         return o
+
+    def unpack(self) -> [_Tensor, _Tensor]:
+        return super(DataCompound, self).unpack()
 
 
 class ResultCompound(_network.ResultCompound):
@@ -41,6 +41,9 @@ class ResultCompound(_network.ResultCompound):
         o = _copy(self)
         o.input_data, o.output = self.input_data.cpu(), self.output.cpu()
         return o
+
+    def unpack(self) -> [_network.DataCompound, _Tensor]:
+        return super(ResultCompound, self).unpack()
 
 
 LayerInfo = _network.LayerInfo

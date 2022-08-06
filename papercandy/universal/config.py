@@ -18,8 +18,7 @@ _required_configs: dict = {
 
 
 class Config(object):
-    def __init__(self, filename: Union[str, PathLike]):
-        self._filename: Union[str, PathLike] = filename
+    def __init__(self):
         self._config: dict = {}
 
     def __contains__(self, key: str) -> bool:
@@ -31,33 +30,71 @@ class Config(object):
         setattr(self, key, value)
         self._config[key] = value
 
-    def load(self) -> Self:
-        with open(self._filename, "r") as f:
-            lines = f.readlines()
-            last = ""
-            for line in lines:
-                line = (last + line).replace(" ", "").replace("\n", "")
-                if last != "" and last[-1] != ":" and line[0] != ":":
-                    last += line
-                    continue
-                if line[-1] == ":":
-                    last += line
-                    continue
-                sp = line.split(":")
-                if len(sp) == 1:
-                    last = line
-                    continue
-                key, val = sp[0], "".join(sp[1:])
-                self.set(key, val)
-                last = ""
-            if last != "":
-                raise SyntaxError("Config file didn't end.")
+    def check_required_configs(self, must_exist: bool = False) -> Self:
+        """
+        Check for each required configuration. When not found, if `must_exist` is True throw an exception,
+            otherwise, fill with the default value.
+        :param must_exist: whether to raise an error when a certain required configuration is not included
+        :return: self
+        """
+        for req_cfg_key in _required_configs.keys():
+            if req_cfg_key not in self:
+                if must_exist:
+                    raise KeyError(f"Configuration should include key \"{req_cfg_key}\".")
+                self.set(req_cfg_key, _required_configs[req_cfg_key][0])
         return self
 
-    def get(self, key: str, must_exists: bool = False, required_type: type = str, default_val: Any = None) \
+    def loads(self, lines: list[str]) -> Self:
+        """
+        Load the configuration content.
+        :param lines: content in lines
+        :return: self
+        """
+        last = ""
+        for line in lines:
+            line = (last + line).replace(" ", "").replace("\n", "")
+            if last != "" and last[-1] != ":" and line[0] != ":":
+                last += line
+                continue
+            if line[-1] == ":":
+                last += line
+                continue
+            sp = line.split(":")
+            if len(sp) == 1:
+                last = line
+                continue
+            key, val = sp[0], "".join(sp[1:])
+            self.set(key, val)
+            last = ""
+        if last != "":
+            raise SyntaxError("Config file didn't end.")
+        return self
+
+    def load(self, filename: Union[str, PathLike]) -> Self:
+        """
+        Load the configuration file.
+        :param filename: filename
+        :return: self
+        """
+        with open(filename, "r") as f:
+            return self.loads(f.readlines())
+
+    def get(self, key: str, must_exist: bool = False, required_type: type = str, default_val: Any = None) \
             -> Union[Any, None]:
+        """
+        Get the configuration value with the key.
+        :param key: the key
+        :param must_exist: whether to raise an error when the key is not found
+        :param required_type: expected type of the value
+            NOTICE: This will be directly called to convert the type, which bool type doesn't support.
+                Therefor we provide an alternative method (pretended to be a type-class)
+                "papercandy.universal.config.Bool" to solve this problem.
+        :param default_val: the default value to return when the key is not found
+            NOTICE: This only works when `must_exist` is False.
+        :return: the value
+        """
         if key not in self._config.keys():
-            if must_exists:
+            if must_exist:
                 raise KeyError(f"No such configuration: \"{key}\".")
             return default_val
         val = self._config[key]
@@ -71,9 +108,6 @@ class Config(object):
 
 
 def new_config(filename: Union[str, PathLike]) -> Config:
-    config = Config(filename).load()
-    # Check required configurations
-    for req_cfg_key in _required_configs.keys():
-        if req_cfg_key not in config:
-            config.set(req_cfg_key, _required_configs[req_cfg_key][0])
+    config = Config().load(filename)
+    config.check_required_configs()
     return config

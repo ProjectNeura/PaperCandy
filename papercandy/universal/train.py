@@ -48,9 +48,10 @@ class Trainer(object):
         return self._config is not None and self._dataloader is not None and self._nc is not None \
                and self._lfc is not None and self._oc is not None
 
-    def _check_requirements_and_raise_exception(self):
+    def _check_requirements_or_raise_err(self):
         if not self._check_requirements():
-            raise AttributeError("Trainer hasn't been completely prepared.")
+            raise AttributeError("Trainer hasn't been completely prepared. Mostly due to some required attributes "
+                                 "being None.")
 
     def get_config(self) -> _cfg.Config:
         return self._config
@@ -88,14 +89,13 @@ class Trainer(object):
     def train(self, num_batches: int, monitor: TrainingMonitor = TrainingMonitor()):
         """
         Train the network by traversing the dataloader until epoch reaches either `num_batches` or the length of the
-            dataloader.
-        Fill `num_batches` with an integer that is larger than the length of the dataloader if you want to go through
-            the whole dataset.
-        NOTICE: When every time this method being called it'll start from the beginning of the dataloader.
+            dataloader. Fill `num_batches` with an integer that is larger than the length of the dataloader if you want
+            to go through the whole dataset.
+            NOTICE: When every time this method being called it'll start from the beginning of the dataloader.
         :param num_batches: batches limit
         :param monitor: training monitor
         """
-        self._check_requirements_and_raise_exception()
+        self._check_requirements_or_raise_err()
         local_epoch = 0
         for data in self._dataloader:
             if local_epoch >= num_batches:
@@ -133,6 +133,12 @@ class TrainerUtils(object):
 
     @staticmethod
     def scale(trainer: Trainer, ratio: float) -> Trainer:
+        """
+        Uniformly remove a certain proportion of the loss data.
+        :param trainer: the object to be operated
+        :param ratio: the proportion
+        :return: another edited object
+        """
         trainer = _copy(trainer)
         if ratio > 1:
             raise ValueError("Not expandable, which means `ratio` cannot be bigger than 1.")
@@ -152,5 +158,11 @@ class TrainerUtils(object):
 
     @staticmethod
     def remove(trainer: Trainer, n: int) -> Trainer:
+        """
+        Uniformly remove a certain amount of the loss data.
+        :param trainer: the object to be operated
+        :param n: the amount
+        :return: another edited object
+        """
         return TrainerUtils.scale(trainer, n / len(trainer.losses))
 

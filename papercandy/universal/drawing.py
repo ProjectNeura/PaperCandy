@@ -55,12 +55,9 @@ class NetworkDrawer(Drawer):
         self._width: int = width
         self._height: int = width
         # parse margin
-        if isinstance(margin, int):
+        if isinstance(margin, Union[int, float]):
             margin_start = margin_end = margin_top = margin_bottom = margin
-        elif isinstance(margin, float):
-            margin_start = margin_end = width * margin
-            margin_top = margin_bottom = height * margin
-        elif isinstance(margin, tuple) or isinstance(margin, list):
+        elif isinstance(margin, Union[tuple, list]):
             if len(margin) == 2:
                 margin_start = margin_end = margin[0]
                 margin_top = margin_bottom = margin[1]
@@ -70,10 +67,10 @@ class NetworkDrawer(Drawer):
                 raise IndexError("Unexpected length of `margin`.")
         else:
             raise TypeError(f"No known case for `margin`: {type(margin)}.")
-        self._margin_start: int = round(margin_start * width if -1 < margin_start < 1 else margin_start)
-        self._margin_end: int = round(margin_end * width if -1 < margin_end < 1 else margin_end)
-        self._margin_top: int = round(margin_top * height if -1 < margin_top < 1 else margin_top)
-        self._margin_bottom: int = round(margin_bottom * height if -1 < margin_bottom < 1 else margin_bottom)
+        self._margin_start: int = round(margin_start if isinstance(margin_start, int) else margin_start * width)
+        self._margin_end: int = round(margin_end if isinstance(margin_end, int) else margin_end * width)
+        self._margin_top: int = round(margin_top if isinstance(margin_top, int) else margin_top * height)
+        self._margin_bottom: int = round(margin_bottom if isinstance(margin_bottom, int) else margin_bottom * height)
         # cal actual size
         self._display_width: int = width + self._margin_start + self._margin_end
         self._display_height: int = height + self._margin_top + self._margin_bottom
