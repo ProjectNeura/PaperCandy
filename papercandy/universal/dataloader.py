@@ -11,18 +11,36 @@ from papercandy import network as _network  # To make the DataCompound's inner t
 class Dataset(object):
     @abstractmethod
     def __init__(self, *args, **kwargs):
+        """
+        Initialization.
+        :param args: unknown
+        :param kwargs: unknown
+        """
         raise NotImplementedError
 
     @abstractmethod
     def __len__(self) -> int:
+        """
+        :return: total count of the elements
+        """
         raise NotImplementedError
 
     @abstractmethod
     def cut(self, i: slice) -> Self:
+        """
+        Cut the dataset.
+        :param i: an index slice
+        :return: another edited object
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get(self, i: int) -> _network.DataCompound:
+        """
+        Get a certain batch of data.
+        :param i: the index of the batch
+        :return: a data compound of the batch of data
+        """
         raise NotImplementedError
 
     def __getitem__(self, item: Union[int, slice]) -> Union[_network.DataCompound, Self]:
@@ -73,7 +91,7 @@ class Dataloader(UniversalDataloader):
         if num_works < 1:
             raise ValueError("`num_works` must be at least 1.")
         if num_works > batch_size:
-            raise ValueError("`num_works` must be less than `batch_size`.")
+            raise ValueError("`num_works` must be smaller than `batch_size`.")
 
         super(Dataloader, self).__init__(dataset)
         self._batch_size: int = batch_size
@@ -110,6 +128,11 @@ class Dataloader(UniversalDataloader):
             self._iter_pointer += batch_size
 
     def _multiply_slice(self, s: slice) -> slice:
+        """
+        Convert the batch indexes to item indexes.
+        :param s: a slice of batch indexes.
+        :return: a slice of item indexes.
+        """
         start, stop, step = None, None, None
         if s.start is not None:
             start = s.start * self._batch_size
