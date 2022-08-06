@@ -7,9 +7,10 @@ from papercandy.version import *
 from papercandy.dataloader import *
 
 
-CONFIG = None
+__repo__ = "https://github.com/ATATC/PaperCandy"
+"""
+NOTICE: This version is built with PyTorch. Consider reimplementing the abstract classes in the `universal` package to
+adapt to the framework that you use if you are not a PyTorch user.
 
-
-def load_config(filename: Union[str, PathLike]):
-    global CONFIG
-    CONFIG = new_config(filename)
+Visit the repository for details.
+"""
