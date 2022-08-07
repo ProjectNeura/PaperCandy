@@ -34,12 +34,7 @@ pip3 install paper-candy
 
    #### Cause
 
-   It seems like PyTorch has some kind of bug on macOS that makes the program end when this happens:
-
-   ```python
-   network: torch.nn.Module = ......
-   network(data)	# The program mostly ends here.
-   ```
+   It seems like PyTorch has some kind of bug on macOS that makes the program end when this happens when the network is forwarding.
 
    #### Solution
 

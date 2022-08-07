@@ -91,8 +91,8 @@ class Trainer(object):
         Train the network by traversing the dataloader until epoch reaches either `num_batches` or the length of the
             dataloader. Fill `num_batches` with an integer that is larger than the length of the dataloader if you want
             to go through the whole dataset.
-            NOTICE: When every time this method being called it'll start from the beginning of the dataloader.
-        :param num_batches: batches limit
+        NOTICE: When every time this method being called it'll start from the beginning of the dataloader.
+        :param num_batches: the maximum number of batches
         :param monitor: training monitor
         """
         self._check_requirements_or_raise_err()
@@ -118,7 +118,7 @@ class Trainer(object):
         :param network: network (not container)
         :param loss_function: loss function (not container)
         :param optimizer: optimizer (not container)
-        :param data: data batch in form of a data compound
+        :param data: data batch
         :return: {network output, loss}
         """
         raise NotImplementedError

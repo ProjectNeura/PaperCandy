@@ -1,8 +1,8 @@
 from os import PathLike
+from abc import abstractmethod
 from typing_extensions import Self
-from abc import abstractmethod, ABC as _ABC
+from typing import Any, Union, Iterable
 from numpy import sin as _sin, cos as _cos
-from typing import Any, Union, Sequence, Iterable
 
 from papercandy.universal import utils as _utils
 
@@ -41,32 +41,6 @@ class ResultCompound(object):
         return self.input_data, self.output
 
 
-class Container(object):
-    @abstractmethod
-    def __init__(self, **kwargs):
-        raise NotImplementedError
-
-    @abstractmethod
-    def gpu(self) -> Self:
-        raise NotImplementedError
-
-    @abstractmethod
-    def cpu(self) -> Self:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get(self) -> Any:
-        raise NotImplementedError
-
-    @abstractmethod
-    def save(self, filename: Union[str, PathLike]):
-        raise NotImplementedError
-
-    @abstractmethod
-    def load(self, filename: Union[str, PathLike]) -> Self:
-        raise NotImplementedError
-
-
 class LayerInfo(object):
     """
     The information container provided to the drawer.
@@ -93,7 +67,7 @@ class LayerInfo(object):
         return round(interval * self.g_width)
 
 
-class LayerInfoList(Sequence):
+class LayerInfoList(object):
     def __init__(self, *layers: LayerInfo):
         self._layers: list[LayerInfo] = list(layers)
 
@@ -149,18 +123,78 @@ class LayerInfoList(Sequence):
         return self
 
 
-class NetworkC(Container, _ABC):
+class NetworkC(object):
     def __len__(self) -> int:
         return len(self.structure())
 
     @abstractmethod
-    def structure(self) -> LayerInfoList[LayerInfo]:
+    def __init__(self, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def gpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def cpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get(self) -> Any:
+        raise NotImplementedError
+
+    @abstractmethod
+    def save(self, filename: Union[str, PathLike]):
+        raise NotImplementedError
+
+    @abstractmethod
+    def load(self, filename: Union[str, PathLike]) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def structure(self) -> LayerInfoList:
         raise NotImplementedError
 
 
-class LossFunctionC(Container, _ABC):
-    pass
+class LossFunctionC(object):
+    @abstractmethod
+    def __init__(self, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def gpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def cpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get(self) -> Any:
+        raise NotImplementedError
 
 
-class OptimizerC(Container, _ABC):
-    pass
+class OptimizerC(object):
+    @abstractmethod
+    def __init__(self, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def gpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def cpu(self) -> Self:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get(self) -> Any:
+        raise NotImplementedError
+
+    @abstractmethod
+    def save(self, filename: Union[str, PathLike]):
+        raise NotImplementedError
+
+    @abstractmethod
+    def load(self, filename: Union[str, PathLike]) -> Self:
+        raise NotImplementedError

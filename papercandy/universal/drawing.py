@@ -1,15 +1,14 @@
 import cv2 as _cv2
 import numpy as _np
 from os import PathLike
-from abc import abstractmethod
 from typing import Any, Union
+from abc import abstractmethod
 from typing_extensions import Self
 from functools import singledispatch
 from matplotlib import pyplot as _plt
 
 from papercandy import network as _network
-from papercandy.universal import train as _train
-from papercandy.universal import utils as _utils
+from papercandy.universal import train as _train, utils as _utils
 
 
 class Drawer(object):
@@ -76,12 +75,12 @@ class NetworkDrawer(Drawer):
         self._display_height: int = height + self._margin_top + self._margin_bottom
         # create canvas (grayscale or multichannel)
         self._canvas: _np.ndarray = _np.ones((self._display_height, self._display_width), dtype=_np.uint8) * bg \
-            if isinstance(bg, int) else NetworkDrawer._create_canvas(self._display_width, self._display_height, bg)
+            if isinstance(bg, int) else self._create_canvas(self._display_width, self._display_height, bg)
 
     def __call__(self, layer_width: int, graph_width: int, layer_height: int, layer_angle: int, offset_x: int,
                  offset_y: int, text: str, description: str = "", color: Union[int, tuple[int]] = 0) -> Self:
         self.draw_line(0, 0, 0, layer_height, graph_width, offset_x, offset_y, color)
-        h = NetworkDrawer.cal_bottom_line(layer_width, layer_angle)
+        h = self.cal_bottom_line(layer_width, layer_angle)
         self.draw_line(0, 0, graph_width, h, graph_width, offset_x, offset_y, color) \
             .draw_line(graph_width, h, graph_width, h + layer_height, graph_width, offset_x, offset_y, color) \
             .draw_line(0, layer_height, graph_width, h + layer_height, graph_width, offset_x, offset_y, color)

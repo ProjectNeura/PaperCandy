@@ -74,7 +74,7 @@ class NetworkC(_network.NetworkC):
         self._network.load_state_dict(_load(filename))
         return self
 
-    def structure(self) -> LayerInfoList[LayerInfo]:
+    def structure(self) -> LayerInfoList:
         lil = LayerInfoList()
         for val in self._network.__dict__["_modules"].values():
             if isinstance(val, _modules.Sequential):
@@ -84,7 +84,7 @@ class NetworkC(_network.NetworkC):
                 lil.append(layer_info)
         return lil
 
-    def reflect_sequential(self, seq: _modules.Sequential) -> LayerInfoList[LayerInfo]:
+    def reflect_sequential(self, seq: _modules.Sequential) -> LayerInfoList:
         lil = LayerInfoList()
         for layer in seq:
             if isinstance(layer, _modules.Sequential):
@@ -126,12 +126,6 @@ class LossFunctionC(_network.LossFunctionC):
 
     def get(self) -> _Module:
         return self._loss_function
-
-    def save(self, filename: Union[str, PathLike]):
-        pass
-
-    def load(self, filename: Union[str, PathLike]) -> Self:
-        return self
 
 
 class OptimizerC(_network.OptimizerC):
