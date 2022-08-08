@@ -2,14 +2,13 @@ from typing import Union, Any
 from abc import abstractmethod
 
 
-from papercandy import network as _network
-from papercandy.universal import dataloader as _dl, config as _cfg
+from papercandy.universal import network as _network, dataloader as _dl, config as _cfg
 
 
 class Tester(object):
-    def __init__(self, config: _cfg.Config, dataloader: _dl.Dataloader):
+    def __init__(self, dataloader: _dl.Dataloader):
         self._nc: Union[_network.NetworkC, None] = None
-        self._config: _cfg.Config = config
+        self._config: _cfg.Config = _cfg.ConfigContainer().CURRENT
         self._dataloader: _dl.Dataloader = dataloader
         self._epoch: int = 0
 
@@ -19,6 +18,15 @@ class Tester(object):
     def _check_requirements_and_raise_exception(self):
         if not self._check_requirements():
             raise AttributeError("Tester hasn't been completely prepared.")
+
+    def get_config(self) -> _cfg.Config:
+        return self._config
+
+    def get_dataloader(self) -> _dl.Dataloader:
+        return self._dataloader
+
+    def get_epoch(self) -> int:
+        return self._epoch
 
     def set_network(self, nc: _network.NetworkC):
         if self._config.get_predefined("gpu_acceleration", True):

@@ -4,6 +4,9 @@ from typing_extensions import Self
 from multiprocessing import cpu_count as _cpu_count
 
 
+from papercandy.universal.singleton import singleton
+
+
 def Bool(s: str) -> bool:
     return s.lower() == "true"
 
@@ -52,6 +55,8 @@ class Config(object):
         """
         last = ""
         for line in lines:
+            if line == "":
+                continue
             line = (last + line).replace(" ", "").replace("\n", "")
             if last != "" and last[-1] != ":" and line[0] != ":":
                 last += line
@@ -108,6 +113,11 @@ class Config(object):
 
 
 def new_config(filename: Union[str, PathLike]) -> Config:
-    config = Config().load(filename)
-    config.check_required_configs()
-    return config
+    return Config().load(filename).check_required_configs()
+
+
+@singleton
+class ConfigContainer(object):
+    def __init__(self):
+        self.DEFAULT: Config = Config().loads([""]).check_required_configs()
+        self.CURRENT: Config = Config().loads([""]).check_required_configs()

@@ -5,7 +5,7 @@ from typing_extensions import Self
 from typing import Iterator, Union, Any
 from multiprocessing import Pool as _Pool
 
-from papercandy import network as _network  # To make the DataCompound's inner type adaptable
+from papercandy.universal import network as _network
 
 
 class Dataset(object):

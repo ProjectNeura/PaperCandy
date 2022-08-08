@@ -1,5 +1,4 @@
 import cv2 as _cv2
-import numpy as _np
 from os import PathLike
 from typing import Any, Union
 from abc import abstractmethod
@@ -7,8 +6,8 @@ from typing_extensions import Self
 from functools import singledispatch
 from matplotlib import pyplot as _plt
 
-from papercandy import network as _network
-from papercandy.universal import train as _train, utils as _utils
+from papercandy.universal.optional_modules import _np
+from papercandy.universal import network as _network, train as _train, utils as _utils
 
 
 class Drawer(object):

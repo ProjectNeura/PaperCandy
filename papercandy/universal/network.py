@@ -2,9 +2,9 @@ from os import PathLike
 from abc import abstractmethod
 from typing_extensions import Self
 from typing import Any, Union, Iterable
-from numpy import sin as _sin, cos as _cos
 
 from papercandy.universal import utils as _utils
+from papercandy.universal.optional_modules import _np
 
 
 class DataCompound(object):
@@ -47,7 +47,7 @@ class LayerInfo(object):
     """
     def __init__(self, width: int, height: int, angle: int, name: str, description: str = ""):
         self.width: int = width
-        self.g_width: int = round(_cos(_utils.angle2radian(angle)) * width)
+        self.g_width: int = round(_np.cos(_utils.angle2radian(angle)) * width)
         self.height: int = height
         self.angle: int = angle
         self.name: str = name
@@ -96,7 +96,7 @@ class LayerInfoList(object):
         for layer in self._layers:
             display_interval = layer.parse_interval(interval)
             canvas_width += layer.g_width + display_interval
-            graph_height = layer.width * _sin(_utils.angle2radian(layer.angle)) + layer.height
+            graph_height = layer.width * _np.sin(_utils.angle2radian(layer.angle)) + layer.height
             if graph_height > canvas_height:
                 canvas_height = graph_height
         canvas_width -= display_interval

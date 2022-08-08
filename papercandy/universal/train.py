@@ -2,8 +2,7 @@ from typing import Union, Any
 from abc import abstractmethod
 from copy import copy as _copy
 
-from papercandy import network as _network
-from papercandy.universal import dataloader as _dl, config as _cfg
+from papercandy.universal import network as _network, dataloader as _dl, config as _cfg
 
 
 class TrainingMonitor(object):
@@ -35,11 +34,11 @@ class TrainingMonitor(object):
 
 
 class Trainer(object):
-    def __init__(self, config: _cfg.Config, dataloader: _dl.Dataloader):
+    def __init__(self, dataloader: _dl.Dataloader):
         self._nc: Union[_network.NetworkC, None] = None
         self._lfc: Union[_network.LossFunctionC, None] = None
         self._oc: Union[_network.OptimizerC, None] = None
-        self._config: _cfg.Config = config
+        self._config: _cfg.Config = _cfg.ConfigContainer().CURRENT
         self._dataloader: _dl.Dataloader = dataloader
         self._epoch: int = 0
         self.losses: list[float] = []
