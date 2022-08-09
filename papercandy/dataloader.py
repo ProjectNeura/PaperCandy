@@ -6,7 +6,7 @@ from os import listdir as _listdir, PathLike
 
 
 from papercandy import network as _network
-from papercandy.universal import dataloader as _dataloader
+from papercandy.core import dataloader as _dataloader
 
 
 Dataset = _dataloader.Dataset

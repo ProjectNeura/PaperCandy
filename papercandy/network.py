@@ -7,7 +7,7 @@ from torch.nn import modules as _modules
 from torch.optim import Optimizer as _Optimizer
 from torch import Tensor as _Tensor, save as _save, load as _load
 
-from papercandy.universal import network as _network
+from papercandy.core import network as _network
 
 
 class DataCompound(_network.DataCompound):

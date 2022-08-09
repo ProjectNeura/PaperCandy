@@ -2,7 +2,7 @@ from typing import Any
 from torch.nn import Module as _Module
 
 from papercandy import network as _network
-from papercandy.universal import train as _train
+from papercandy.core import train as _train
 
 
 class Trainer(_train.Trainer):

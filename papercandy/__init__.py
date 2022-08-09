@@ -9,7 +9,7 @@ from papercandy.dataloader import *
 
 __repo__ = "https://github.com/ATATC/PaperCandy"
 """
-NOTICE: This version is built with PyTorch. Consider reimplementing the abstract classes in the `universal` package to
+NOTICE: This version is built with PyTorch. Consider reimplementing the abstract classes in the `core` package to
 adapt to the framework that you use if you are not a PyTorch user.
 
 Visit the repository for details.

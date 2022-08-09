@@ -2,7 +2,7 @@ from typing import Any
 from torch import no_grad as _no_grad
 
 from papercandy import network as _network
-from papercandy.universal import test as _test
+from papercandy.core import test as _test
 
 
 class Tester(_test.Tester):

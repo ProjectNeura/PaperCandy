@@ -5,10 +5,14 @@ from typing_extensions import Self
 from typing import Iterator, Union, Any
 from multiprocessing import Pool as _Pool
 
-from papercandy.universal import network as _network
+from papercandy.core import network as _network
+from papercandy.core.optional_modules import _coota, coota_is_available as _coota_is_available
 
 
 class Dataset(object):
+    """
+    Since this class is likely to be involved in multiprocessing, make sure it's process secured.
+    """
     @abstractmethod
     def __init__(self, *args, **kwargs):
         """
@@ -50,6 +54,27 @@ class Dataset(object):
             return self.cut(item)
 
 
+class COOTADataset(Dataset):
+    def __init__(self, generator: _coota.Generator):
+        if not _coota_is_available():
+            raise EnvironmentError(
+                "This function requires COOTA being installed. "
+                "COOTA can be found here -> https://github.com/ATATC/COOTA or `pip(3) install coota`. "
+                "If you have already installed, there might other ImportError that can also cause it being recognized "
+                "as uninstalled."
+            )
+        self.generator: _coota.Generator = generator
+
+    def __len__(self) -> int:
+        return int("inf")
+
+    def cut(self, i: slice) -> Self:
+        pass
+
+    def get(self, size: int) -> _network.DataCompound:
+        return self.generator.generate(size)
+
+
 class UniversalDataloader(object):
     def __init__(self, dataset: Dataset):
         self.dataset: Dataset = dataset
@@ -82,6 +107,27 @@ class UniversalDataloader(object):
     @abstractmethod
     def load_batch(self, start: int, stop: int) -> _network.DataCompound:
         raise NotImplementedError
+
+
+class COOTADataloader(UniversalDataloader):
+    def __init__(self, dataset: COOTADataset, batch_size: int = 1):
+        if not _coota_is_available():
+            raise EnvironmentError(
+                "This function requires COOTA being installed. "
+                "COOTA can be found here -> https://github.com/ATATC/COOTA or `pip(3) install coota`. "
+                "If you have already installed, there might other ImportError that can also cause it being recognized "
+                "as uninstalled."
+            )
+        super(COOTADataloader, self).__init__(dataset)
+        self._batch_size: int = batch_size
+        self._iter_pointer: int = 0
+
+    def __next__(self) -> _network.DataCompound:
+        return self.load_batch(self._iter_pointer * self._batch_size,
+                               self._iter_pointer * self._batch_size + self._batch_size)
+
+    def load_batch(self, start: int, stop: int) -> _network.DataCompound:
+        return self.dataset.get(stop - start)
 
 
 class Dataloader(UniversalDataloader):
@@ -125,6 +171,7 @@ class Dataloader(UniversalDataloader):
             raise StopIteration
         batch_size = self._batch_size if rest > self._batch_size else rest
         try:
+            # convert index from batch to item
             return self.load_batch(self._iter_pointer * self._batch_size,
                                    self._iter_pointer * self._batch_size + batch_size)
         finally:
@@ -153,6 +200,11 @@ class Dataloader(UniversalDataloader):
         return self
 
     def load_batch(self, start: int, stop: int) -> _network.DataCompound:
+        """
+        :param start: item index instead of batch index
+        :param stop: item index instead of batch index
+        :return: a data compound of the batch of data
+        """
         res_list = []
         size = stop - start
         if self._num_works == 1:
@@ -215,7 +267,7 @@ class PreprocessedDataloader(Dataloader):
     def preprocess(self, original_data: _network.DataCompound) -> list[_network.DataCompound]:
         """
         Preprocess the data.
-        NOTICE: The return list must always have the same length which cannot be smaller than 1.
+        NOTICE: The length of the return list must be a fixed number which cannot be smaller than 1.
         :param original_data: single data item (not batch)
         :return: a list of preprocessed data
         """

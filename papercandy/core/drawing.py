@@ -6,8 +6,8 @@ from typing_extensions import Self
 from functools import singledispatch
 from matplotlib import pyplot as _plt
 
-from papercandy.universal.optional_modules import _np
-from papercandy.universal import network as _network, train as _train, utils as _utils
+from papercandy.core.optional_modules import _np
+from papercandy.core import network as _network, train as _train, utils as _utils
 
 
 class Drawer(object):

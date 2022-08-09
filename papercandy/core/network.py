@@ -3,8 +3,8 @@ from abc import abstractmethod
 from typing_extensions import Self
 from typing import Any, Union, Iterable
 
-from papercandy.universal import utils as _utils
-from papercandy.universal.optional_modules import _np
+from papercandy.core import utils as _utils
+from papercandy.core.optional_modules import _np
 
 
 class DataCompound(object):

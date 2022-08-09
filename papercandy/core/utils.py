@@ -1,7 +1,7 @@
 from typing import Any
 
 
-from papercandy.universal.optional_modules import _np
+from papercandy.core.optional_modules import _np
 
 
 def angle2radian(angle: float) -> float:

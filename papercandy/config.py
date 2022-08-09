@@ -2,7 +2,7 @@ from os import PathLike
 from typing import Union
 from torch.cuda import is_available as _is_available
 
-from papercandy.universal import config as _config
+from papercandy.core import config as _config
 
 Config = _config.Config
 Bool = _config.Bool

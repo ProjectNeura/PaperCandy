@@ -4,7 +4,7 @@ from typing_extensions import Self
 from multiprocessing import cpu_count as _cpu_count
 
 
-from papercandy.universal.singleton import singleton
+from papercandy.core.singleton import singleton
 
 
 def Bool(s: str) -> bool:
@@ -93,7 +93,7 @@ class Config(object):
         :param required_type: expected type of the value
             NOTICE: This will be directly called to convert the type, which bool type doesn't support.
                 Therefor we provide an alternative method (pretended to be a type-class)
-                "papercandy.universal.config.Bool" to solve this problem.
+                "papercandy.core.config.Bool" to solve this problem.
         :param default_val: the default value to return when the key is not found
             NOTICE: This only works when `must_exist` is False.
         :return: the value

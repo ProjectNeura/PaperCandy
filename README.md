@@ -6,6 +6,24 @@
 
 **NOTICE: This version is built with PyTorch. Consider reimplementing the abstract classes in package `papercandy.universal` to adapt to the framework that you use if you are not a PyTorch user.**
 
+### Optional Modules
+
+#### CUPY
+
+PaperCandy is capable to use CUPY as an optional replacement for Numpy, which means you need to manually install it. You can find their documentation 👉[here](https://cupy.dev/).
+
+#### COOTA
+
+PaperCandy provides some extra functions based on COOTA, which are only available having installed COOTA. Documentation 👉[here](https://github.com/ATATC/COOTA).
+
+Check if COOTA is available:
+
+```python
+from papercandy.core import optional_modules as om
+
+print(om.coota_is_available())
+```
+
 ### Repository
 
 [Github](https://github.com/ATATC/PaperCandy) | [Pypi](https://pypi.org/project/paper-candy/)
