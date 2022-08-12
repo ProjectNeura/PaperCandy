@@ -10,7 +10,7 @@ except ImportError:
 
 class _SimulatedCOOTA(object):
     class Generator(object):
-        def generate(self, size: int):
+        def generate(self, size: int, *args, parse: bool = True):
             raise NotImplementedError
 
 
