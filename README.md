@@ -42,6 +42,94 @@ pip install paper-candy
 pip3 install paper-candy
 ```
 
+## Quick Start
+
+***You can find classes and methods annotated under `papercandy.core`.***
+
+Before running this demo, download the example dataset and make the structure according to the following insturctions.
+
+1. Run this script to create the dataset.
+
+   ```python
+   import os
+   NUM_ITEMS = 6
+   os.mkdir("./data")
+   for i in range(1, NUM_ITEMS + 1):
+       with open(f"./data/{i}.txt", "w") as f:
+           f.write(f"[{2 * i - 1}, {2 * i}]")
+   ```
+
+2. Create file `config.txt` and leave it empty.
+
+3. Make sure you have the structure like this:
+
+   data
+   ----1.txt
+   ----2.txt
+   ----3.txt
+   ----4.txt
+   ----5.txt
+   ----6.txt
+   config.txt
+   main.py
+
+```python
+from papercandy import *
+from torch import nn
+
+
+class ExampleDataset(Dataset):
+    def __init__(self, src: Union[str, PathLike]):
+        self.src: Union[str, PathLike] = src
+        self.file_list: list = _listdir(self.src)
+
+    def __len__(self) -> int:
+        return len(self.file_list)
+
+    def cut(self, i: slice) -> Self:
+        o = ExampleDataset(self.src)
+        o.file_list = self.file_list[i]
+        return o
+
+    def get(self, i: int) -> _network.DataCompound:
+        with open("%s/%s" % (self.src, self.file_list[i]), "r") as f:
+            return _network.DataCompound(_Tensor([int(self.file_list[i])]), _Tensor(eval(f.read())))
+          
+
+if __name__ == "main":
+    CONFIG().CURRENT = new_config("./config.txt")
+    dataset = ExampleDataset("./data")
+    # `num_works`: the number of processes
+    # `batch_size`: batch size
+    dataloader = Dataloader(dataset, num_works=2, batch_size=4)
+    trainer = Trainer(dataloder)
+    
+    torch_network = YOUR_NETWORK()
+    network_container = NetworkC(torch_network)
+    trainer.set_network(network_container)
+    
+    torch_loss_function = YOUR_LOSS_FUNCTION()
+    loss_function_container = LossFunctionC(torch_loss_function)
+    trainer.set_loss_function(loss_function_container)
+    
+    torch_optimizer = YOUR_OPTIMIZER()
+    optimizer_container = OptimizerC(torch_optimizer)
+   	trainer.set_optimizer(optimizer_container)
+    
+    # the monitor is a callback interface for trainer
+    tariner.train(monitor=TrainingMonitor())	# optional kwargs: `num_batches`, `monitor`
+    
+    drawer = draw(trainer, 1920, 1080)	# width, height
+    drawer.save("./training_loss").show()
+```
+
+## Predefined Configuration
+
+| Name               | Required Type               | Default Value | Usage                                                       |
+| ------------------ | --------------------------- | ------------- | ----------------------------------------------------------- |
+| `gpu_acceleration` | papercandy.core.config.Bool | False         | Whether to enable GPU acceleration in the training process. |
+| device             | int                         | 0             | The GPU device.                                             |
+
 ## FAQ
 
 1. ### macOS, Unexpected Ending

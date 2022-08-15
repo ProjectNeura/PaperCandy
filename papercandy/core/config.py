@@ -1,7 +1,6 @@
 from os import PathLike
 from typing import Union, Any
 from typing_extensions import Self
-from multiprocessing import cpu_count as _cpu_count
 
 
 from papercandy.core.singleton import singleton
@@ -12,9 +11,6 @@ def Bool(s: str) -> bool:
 
 
 _required_configs: dict = {
-    "data": ("./data", str),
-    "batch_size": ("16", int),
-    "num_works": (str(_cpu_count()), int),
     "gpu_acceleration": ("False", Bool),
     "device": ("0", int),
 }
