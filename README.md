@@ -20,7 +20,6 @@ Check if COOTA is available:
 
 ```python
 from papercandy.core import optional_modules as om
-
 print(om.coota_is_available())
 ```
 
@@ -46,7 +45,7 @@ pip3 install paper-candy
 
 ***You can find classes and methods annotated under `papercandy.core`.***
 
-Before running this demo, download the example dataset and make the structure according to the following insturctions.
+Some preparation needs to be done before the demo works.
 
 1. Run this script to create the dataset.
 
@@ -64,13 +63,21 @@ Before running this demo, download the example dataset and make the structure ac
 3. Make sure you have the structure like this:
 
    data
-   ----1.txt
-   ----2.txt
-   ----3.txt
-   ----4.txt
-   ----5.txt
-   ----6.txt
+   
+   --------1.txt
+   
+   --------2.txt
+   
+   --------3.txt
+   
+   --------4.txt
+   
+   --------5.txt
+   
+   --------6.txt
+   
    config.txt
+   
    main.py
 
 ```python
