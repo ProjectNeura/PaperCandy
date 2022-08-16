@@ -9,16 +9,6 @@ from papercandy.core import network as _network
 from papercandy.core.optional_modules import _coota, coota_is_available as _coota_is_available
 
 
-if _coota_is_available():
-    class PCGenerator(_coota.Generator):
-        @abstractmethod
-        def make(self, size: int, *args) -> _network.DataCompound:
-            raise NotImplementedError
-
-        def generate(self, size: int, *args, parse: bool = True) -> _network.DataCompound:
-            return super(PCGenerator, self).generate(size, *args, parse)
-
-
 class Dataset(object):
     """
     Since this class is likely to be involved in multiprocessing, make sure it's process secured.
@@ -64,27 +54,6 @@ class Dataset(object):
             return self.cut(item)
 
 
-class COOTADataset(Dataset):
-    def __init__(self, generator: PCGenerator):
-        if not _coota_is_available():
-            raise EnvironmentError(
-                "This function requires COOTA being installed. "
-                "COOTA can be found here -> https://github.com/ATATC/COOTA or `pip(3) install coota`. "
-                "If you have already installed, there might other ImportError that can also cause it being recognized "
-                "as uninstalled."
-            )
-        self.generator: PCGenerator = generator
-
-    def __len__(self) -> int:
-        return int("inf")
-
-    def cut(self, i: slice) -> Self:
-        pass
-
-    def get(self, size: int) -> _network.DataCompound:
-        return self.generator.generate(size)
-
-
 class UniversalDataloader(object):
     def __init__(self, dataset: Dataset):
         self.dataset: Dataset = dataset
@@ -119,25 +88,40 @@ class UniversalDataloader(object):
         raise NotImplementedError
 
 
-class COOTADataloader(UniversalDataloader):
-    def __init__(self, dataset: COOTADataset, batch_size: int = 1):
-        if not _coota_is_available():
-            raise EnvironmentError(
-                "This function requires COOTA being installed. "
-                "COOTA can be found here -> https://github.com/ATATC/COOTA or `pip(3) install coota`. "
-                "If you have already installed, there might other ImportError that can also cause it being recognized "
-                "as uninstalled."
-            )
-        super(COOTADataloader, self).__init__(dataset)
-        self._batch_size: int = batch_size
-        self._iter_pointer: int = 0
+if _coota_is_available():
+    class PCGenerator(_coota.Generator):
+        @abstractmethod
+        def make(self, size: int, *args) -> _network.DataCompound:
+            raise NotImplementedError
 
-    def __next__(self) -> _network.DataCompound:
-        return self.load_batch(self._iter_pointer * self._batch_size,
-                               self._iter_pointer * self._batch_size + self._batch_size)
+        def generate(self, size: int, *args, parse: bool = True) -> _network.DataCompound:
+            return super(PCGenerator, self).generate(size, *args, parse)
 
-    def load_batch(self, start: int, stop: int) -> _network.DataCompound:
-        return self.dataset.get(stop - start)
+    class COOTADataset(Dataset):
+        def __init__(self, generator: PCGenerator):
+            self.generator: PCGenerator = generator
+
+        def __len__(self) -> int:
+            return int("inf")
+
+        def cut(self, i: slice) -> Self:
+            pass
+
+        def get(self, size: int) -> _network.DataCompound:
+            return self.generator.generate(size)
+
+    class COOTADataloader(UniversalDataloader):
+        def __init__(self, dataset: COOTADataset, batch_size: int = 1):
+            super(COOTADataloader, self).__init__(dataset)
+            self._batch_size: int = batch_size
+            self._iter_pointer: int = 0
+
+        def __next__(self) -> _network.DataCompound:
+            return self.load_batch(self._iter_pointer * self._batch_size,
+                                   self._iter_pointer * self._batch_size + self._batch_size)
+
+        def load_batch(self, start: int, stop: int) -> _network.DataCompound:
+            return self.dataset.get(stop - start)
 
 
 class Dataloader(UniversalDataloader):

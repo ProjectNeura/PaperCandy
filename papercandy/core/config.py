@@ -24,7 +24,7 @@ class Config(object):
         return key in self._config.keys()
 
     def set(self, key: str, value: str):
-        if hasattr(self, key):
+        if hasattr(self, key) and key not in self._config.keys():
             raise KeyError(f"{key} is used.")
         setattr(self, key, value)
         self._config[key] = value
