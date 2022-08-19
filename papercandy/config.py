@@ -6,7 +6,7 @@ from papercandy.core import config as _config
 
 Config = _config.Config
 Bool = _config.Bool
-CONFIG = _config.ConfigContainer
+CONFIG = _config.CONFIG
 
 
 def new_config(filename: Union[str, PathLike]) -> Config:

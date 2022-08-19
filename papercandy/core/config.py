@@ -101,11 +101,11 @@ class Config(object):
         val = self._config[key]
         return val if required_type == str else required_type(val)
 
-    def get_predefined(self, key: str, must_exists: bool = False) -> Union[Any, None]:
+    def get_predefined(self, key: str) -> Union[Any, None]:
         required_type = str
         if key in _required_configs.keys():
             required_type = _required_configs[key][1]
-        return self.get(key, must_exists, required_type)
+        return self.get(key, True, required_type)
 
 
 def new_config(filename: Union[str, PathLike]) -> Config:
@@ -113,7 +113,7 @@ def new_config(filename: Union[str, PathLike]) -> Config:
 
 
 @singleton
-class ConfigContainer(object):
+class CONFIG(object):
     def __init__(self):
         self.DEFAULT: Config = Config().loads([""]).check_required_configs()
         self.CURRENT: Config = Config().loads([""]).check_required_configs()

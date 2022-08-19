@@ -38,7 +38,7 @@ class Trainer(object):
         self._nc: Union[_network.NetworkC, None] = None
         self._lfc: Union[_network.LossFunctionC, None] = None
         self._oc: Union[_network.OptimizerC, None] = None
-        self._config: _cfg.Config = _cfg.ConfigContainer().CURRENT
+        self._config: _cfg.Config = _cfg.CONFIG().CURRENT
         self._dataloader: _dl.Dataloader = dataloader
         self._epoch: int = 0
         self.losses: list[float] = []
@@ -62,7 +62,7 @@ class Trainer(object):
         return self._epoch
 
     def set_network(self, nc: _network.NetworkC):
-        if self._config.get_predefined("gpu_acceleration", True):
+        if self._config.get_predefined("gpu_acceleration"):
             nc = nc.gpu()
         self._nc = nc
 
@@ -70,7 +70,7 @@ class Trainer(object):
         return self._nc
 
     def set_loss_function(self, lfc: _network.LossFunctionC):
-        if self._config.get_predefined("gpu_acceleration", True):
+        if self._config.get_predefined("gpu_acceleration"):
             lfc = lfc.gpu()
         self._lfc = lfc
 
@@ -78,7 +78,7 @@ class Trainer(object):
         return self._lfc
 
     def set_optimizer(self, oc: _network.OptimizerC):
-        if self._config.get_predefined("gpu_acceleration", True):
+        if self._config.get_predefined("gpu_acceleration"):
             oc = oc.gpu()
         self._oc = oc
 
@@ -99,7 +99,7 @@ class Trainer(object):
         for data in self._dataloader:
             if local_epoch >= num_batches:
                 break
-            if self._config.get_predefined("gpu_acceleration", True):
+            if self._config.get_predefined("gpu_acceleration"):
                 data = data.gpu()
             o, loss = self._train_one_batch(self._epoch, self._nc.get(), self._lfc.get(), self._oc.get(), data)
             self.losses.append(loss)

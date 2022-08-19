@@ -121,7 +121,7 @@ if __name__ == "main":
     
     torch_optimizer = YOUR_OPTIMIZER()
     optimizer_container = OptimizerC(torch_optimizer)
-   	trainer.set_optimizer(optimizer_container)
+    trainer.set_optimizer(optimizer_container)
     
     # the monitor is a callback interface for trainer
     tariner.train(monitor=TrainingMonitor())	# optional kwargs: `num_batches`, `monitor`
@@ -135,7 +135,7 @@ if __name__ == "main":
 | Name               | Required Type               | Default Value | Usage                                                       |
 | ------------------ | --------------------------- | ------------- | ----------------------------------------------------------- |
 | `gpu_acceleration` | papercandy.core.config.Bool | False         | Whether to enable GPU acceleration in the training process. |
-| device             | int                         | 0             | The GPU device.                                             |
+| `device`           | int                         | 0             | The GPU device.                                             |
 
 ## FAQ
 

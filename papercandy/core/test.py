@@ -8,7 +8,7 @@ from papercandy.core import network as _network, dataloader as _dl, config as _c
 class Tester(object):
     def __init__(self, dataloader: _dl.Dataloader):
         self._nc: Union[_network.NetworkC, None] = None
-        self._config: _cfg.Config = _cfg.ConfigContainer().CURRENT
+        self._config: _cfg.Config = _cfg.CONFIG().CURRENT
         self._dataloader: _dl.Dataloader = dataloader
         self._epoch: int = 0
 
@@ -29,7 +29,7 @@ class Tester(object):
         return self._epoch
 
     def set_network(self, nc: _network.NetworkC):
-        if self._config.get_predefined("gpu_acceleration", True):
+        if self._config.get_predefined("gpu_acceleration"):
             nc = nc.gpu()
         self._nc = nc
 
@@ -43,7 +43,7 @@ class Tester(object):
         for data in self._dataloader:
             if local_epoch >= num_batches:
                 break
-            if self._config.get_predefined("gpu_acceleration", True):
+            if self._config.get_predefined("gpu_acceleration"):
                 data = data.gpu()
             o = self._test_one_batch(self._epoch, self._nc.get(), data)
             res_list.append(_network.ResultCompound(data, o))

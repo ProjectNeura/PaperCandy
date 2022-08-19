@@ -7,7 +7,7 @@ from torch.nn import modules as _modules
 from torch.optim import Optimizer as _Optimizer
 from torch import Tensor as _Tensor, save as _save, load as _load
 
-from papercandy.core import network as _network
+from papercandy.core import network as _network, config as _config
 
 
 class DataCompound(_network.DataCompound):
@@ -16,7 +16,7 @@ class DataCompound(_network.DataCompound):
 
     def gpu(self) -> Self:
         o = _copy(self)
-        o.data, o.target = self.data.cuda(), self.target.cuda()
+        o.data, o.target = self.data.cuda(device=_config.CONFIG().CURRENT.get_predefined("device")), self.target.cuda()
         return o
 
     def cpu(self) -> Self:
@@ -107,6 +107,10 @@ class NetworkC(_network.NetworkC):
             return LayerInfo(800, 800, angle, "BatchNorm")
         if isinstance(layer, _modules.ReLU):
             return LayerInfo(400, 400, angle, "Relu")
+        if isinstance(layer, _modules.LSTM):
+            return LayerInfo(800, 800, angle, "LSTM")
+        if isinstance(layer, _modules.Transformer):
+            return LayerInfo(800, 800, angle, "Transformer")
         return None
 
 

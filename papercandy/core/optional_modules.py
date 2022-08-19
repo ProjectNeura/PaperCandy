@@ -1,7 +1,7 @@
 from papercandy.core import config as _cfg
 
 try:
-    if _cfg.ConfigContainer().CURRENT.get_predefined("gpu_acceleration", True):
+    if _cfg.CONFIG().CURRENT.get_predefined("gpu_acceleration"):
         raise ImportError
     import cupy as _np
 except ImportError:
