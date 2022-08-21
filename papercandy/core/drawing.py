@@ -7,19 +7,26 @@ from functools import singledispatch
 from matplotlib import pyplot as _plt
 
 from papercandy.core.optional_modules import _np
-from papercandy.core import network as _network, train as _train, utils as _utils
+from papercandy.core import network as _network, train as _train, utils as _utils, dataloader as _dl
 
 
 class Drawer(object):
+    def __init__(self, width: int, height: int):
+        self._width: int = width
+        self._height: int = height
+
     @abstractmethod
     def __call__(self, *args, **kwargs) -> Self:
         """
-        Draw.
+        Draw. Forward progress.
         :param args: unknown
         :param kwargs: unknown
         :return: self
         """
         raise NotImplementedError
+
+    def get_size(self) -> (int, int):
+        return self._width, self._height
 
     @abstractmethod
     def show(self) -> Self:
@@ -50,8 +57,7 @@ class NetworkDrawer(Drawer):
         :param margin: margin (int for pixels, float for ratio)
             specific: horizontal, vertical / start, end, top, bottom
         """
-        self._width: int = width
-        self._height: int = width
+        super(NetworkDrawer, self).__init__(width, height)
         # parse margin
         if isinstance(margin, Union[int, float]):
             margin_start = margin_end = margin_top = margin_bottom = margin
@@ -198,14 +204,13 @@ class NetworkDrawer(Drawer):
 
 class LossesDrawer(Drawer):
     def __init__(self, width: int, height: int, bg: str = "white"):
-        self._width: int = round(width / 100)
-        self._height: int = round(height / 100)
+        super(LossesDrawer, self).__init__(round(width / 100), round(height / 100))
         self._losses: list[float] = []
         self._bg: str = bg
 
     def __call__(self, losses: list[float], color: str = "black") -> Self:
         self._losses += losses
-        _plt.figure(figsize=(self._width, self._height))
+        _plt.figure(figsize=(self._width, self._height))    # FixMe: Not sure whether it supports multi times
         _plt.plot(_np.arange(1, len(self._losses) + 1), self._losses, marker="o", color=color, label="loss")
         _plt.xlabel("Epoch")
         _plt.ylabel("Loss")
@@ -215,6 +220,42 @@ class LossesDrawer(Drawer):
         _plt.title(title)
         _plt.show()
         return self
+
+    def save(self, filename: Union[str, PathLike]) -> Self:
+        _plt.savefig(filename)
+        return self
+
+
+class AccuracyDrawer(Drawer):
+    def __init__(self, width: int, height: int, bg: str = "white"):
+        super(AccuracyDrawer, self).__init__(round(width / 100), round(height / 100))
+        self._bg: str = bg
+        self._acc_list: list[list] = []
+
+    def __call__(self, *args) -> Self:
+        """
+        :param args: either of the following types
+            1. accuracy: float, network_name: str
+            2. num_correct_data: int, num_total_data: int, network_name: str
+        :return: self
+        """
+        if len(args) == 1 and isinstance(args[0], Union[list, tuple]):
+            for i in args[0]:
+                self(*i)
+            return self
+        if len(args) == 2:
+            self._acc_list.append([args[0], args[1]])
+        if len(args) == 3:
+            self._acc_list.append([args[0] / args[1], f"{args[2]} {args[0]}/{args[1]}"])
+            return self
+        raise RuntimeError("Unexpected form of arguments.")
+
+    def show(self, title: str = "Network Accuracy", color: str = "black") -> Self:
+        _plt.figure(figsize=(self._width, self._height))    # FixMe: Not sure whether it supports multi times
+        _plt.bar(len(self._acc_list), [100 * i[0] for i in self._acc_list], color=color, label="accuracy(%)")
+        _plt.bar_label([i[1] for i in self._acc_list])
+        _plt.xlabel("Network")
+        _plt.ylabel("Accuracy")
 
     def save(self, filename: Union[str, PathLike]) -> Self:
         _plt.savefig(filename)
