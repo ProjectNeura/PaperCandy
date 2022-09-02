@@ -4,8 +4,14 @@ try:
     if _cfg.CONFIG().CURRENT.get_predefined("gpu_acceleration"):
         raise ImportError
     import cupy as _np
+
+    def cupy_is_available() -> bool:
+        return True
 except ImportError:
     import numpy as _np
+
+    def cupy_is_available() -> bool:
+        return False
 
 
 class _SimulatedCOOTA(object):

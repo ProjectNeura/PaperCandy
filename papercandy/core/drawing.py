@@ -6,7 +6,7 @@ from typing_extensions import Self
 from functools import singledispatch
 from matplotlib import pyplot as _plt
 
-from papercandy.core.optional_modules import _np
+from papercandy.core.optional_modules import _np, cupy_is_available as _cupy_is_available
 from papercandy.core import network as _network, train as _train, utils as _utils, dataloader as _dl
 
 
@@ -211,7 +211,8 @@ class LossesDrawer(Drawer):
     def __call__(self, losses: list[float], color: str = "black") -> Self:
         self._losses += losses
         _plt.figure(figsize=(self._width, self._height))    # FixMe: Not sure whether it supports multi times
-        _plt.plot(_np.arange(1, len(self._losses) + 1), self._losses, marker="o", color=color, label="loss")
+        r = _np.arange(1, len(self._losses) + 1)
+        _plt.plot(r.get() if _cupy_is_available() else r, self._losses, marker="o", color=color, label="loss")
         _plt.xlabel("Epoch")
         _plt.ylabel("Loss")
         return self
