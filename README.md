@@ -4,7 +4,7 @@
 
 ## Installation
 
-**NOTICE: This version is built with PyTorch. Consider reimplementing the abstract classes in package `papercandy.universal` to adapt to the framework that you use if you are not a PyTorch user.**
+**NOTICE: This version is built with PyTorch. Consider reimplementing the abstract classes in package `papercandy.core` to adapt to the framework that you use if you are not a PyTorch user.**
 
 ### Optional Modules
 
