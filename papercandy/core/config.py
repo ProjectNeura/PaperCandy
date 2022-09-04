@@ -51,9 +51,9 @@ class Config(object):
         """
         last = ""
         for line in lines:
+            line = (last + line).replace(" ", "").replace("\n", "")
             if line == "":
                 continue
-            line = (last + line).replace(" ", "").replace("\n", "")
             if last != "" and last[-1] != ":" and line[0] != ":":
                 last += line
                 continue

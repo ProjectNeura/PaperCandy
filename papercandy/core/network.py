@@ -1,10 +1,10 @@
+import numpy as _np
 from os import PathLike
 from abc import abstractmethod
 from typing_extensions import Self
 from typing import Any, Union, Iterable
 
 from papercandy.core import utils as _utils
-from papercandy.core.optional_modules import _np
 
 
 class DataCompound(object):

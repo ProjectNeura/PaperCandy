@@ -1,4 +1,5 @@
 import cv2 as _cv2
+import numpy as _np
 from os import PathLike
 from typing import Any, Union
 from abc import abstractmethod
@@ -6,8 +7,7 @@ from typing_extensions import Self
 from functools import singledispatch
 from matplotlib import pyplot as _plt
 
-from papercandy.core.optional_modules import _np, cupy_is_available as _cupy_is_available
-from papercandy.core import network as _network, train as _train, utils as _utils, dataloader as _dl
+from papercandy.core import network as _network, train as _train, utils as _utils
 
 
 class Drawer(object):
@@ -212,7 +212,7 @@ class LossesDrawer(Drawer):
         self._losses += losses
         _plt.figure(figsize=(self._width, self._height))    # FixMe: Not sure whether it supports multi times
         r = _np.arange(1, len(self._losses) + 1)
-        _plt.plot(r.get() if _cupy_is_available() else r, self._losses, marker="o", color=color, label="loss")
+        _plt.plot(r, self._losses, marker="o", color=color, label="loss")
         _plt.xlabel("Epoch")
         _plt.ylabel("Loss")
         return self

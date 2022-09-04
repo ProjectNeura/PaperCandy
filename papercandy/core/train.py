@@ -121,17 +121,46 @@ class Trainer(object):
         :return: {network output, loss}
         """
         raise NotImplementedError
-    
 
-class TrainerUtils(object):
+
+class TrainerDataUtils(object):
     @staticmethod
-    def limit(trainer: Trainer, n: float) -> Trainer:
+    def vibration(losses: list) -> bool:
+        if len(losses) == 2:
+            return losses[1] > losses[0]
+        if all(x > y for x, y in zip(losses, losses[1:])):
+            return False
+        new_losses = []
+        for i in range(0, len(losses), 2):
+            new_losses.append(0.5 * sum(losses[i: i + 2]))
+        return TrainerDataUtils.vibration(new_losses)
+
+    @staticmethod
+    def analyse(trainer: Trainer) -> dict:
+        length = len(trainer.losses)
+        if length < 20:
+            raise RuntimeError("Samples not enough to analyse.")
+        min_loss = min(trainer.losses)
+        max_loss = max(trainer.losses)
+        average_loss = sum(trainer.losses) / length
+        vibration = TrainerDataUtils.vibration(trainer.losses[:-length * 0.1])
+        print(f"Loss: {round(min_loss, 2)}~{round(max_loss, 2)}({round(average_loss, 2)} on average)\n"
+              f"Vibration: {vibration}")
+        return {
+            "min_loss": min_loss,
+            "max_loss": max_loss,
+            "average_loss": average_loss,
+            "vibration": vibration,
+        }
+
+    @staticmethod
+    def limit_losses(trainer: Trainer, n: float) -> Trainer:
         trainer = _copy(trainer)
         trainer.losses = [i for i in trainer.losses if i <= n]
         return trainer
 
     @staticmethod
-    def scale(trainer: Trainer, ratio: float) -> Trainer:
+    def scale_losses(trainer: Trainer, ratio: float) -> Trainer:
         """
         Uniformly remove a certain proportion of the loss data.
         :param trainer: the object to be operated
@@ -156,12 +185,11 @@ class TrainerUtils(object):
         return trainer
 
     @staticmethod
-    def remove(trainer: Trainer, n: int) -> Trainer:
+    def remove_losses(trainer: Trainer, n: int) -> Trainer:
         """
         Uniformly remove a certain amount of the loss data.
         :param trainer: the object to be operated
         :param n: the amount
         :return: another edited object
         """
-        return TrainerUtils.scale(trainer, n / len(trainer.losses))
-
+        return TrainerDataUtils.scale_losses(trainer, n / len(trainer.losses))

@@ -24,5 +24,5 @@ class TrainingMonitor(_train.TrainingMonitor):
     def on_finished(self, trainer: Trainer, epoch: int): pass
 
 
-class TrainerUtils(_train.TrainerUtils):
+class TrainerDataUtils(_train.TrainerDataUtils):
     pass

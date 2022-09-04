@@ -8,10 +8,6 @@
 
 ### Optional Modules
 
-#### CUPY
-
-PaperCandy is capable to use CUPY as an optional replacement for Numpy, which means you need to manually install it. You can find their documentation 👉[here](https://cupy.dev/).
-
 #### COOTA
 
 PaperCandy provides some extra functions based on COOTA, which are only available having installed COOTA. Documentation 👉[here](https://github.com/ATATC/COOTA).
