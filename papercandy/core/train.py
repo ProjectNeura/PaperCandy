@@ -143,7 +143,7 @@ class TrainerDataUtils(object):
         min_loss = min(trainer.losses)
         max_loss = max(trainer.losses)
         average_loss = sum(trainer.losses) / length
-        vibration = TrainerDataUtils.vibration(trainer.losses[:-length * 0.1])
+        vibration = TrainerDataUtils.vibration(trainer.losses[:round(length * 0.1)])
         print(f"Loss: {round(min_loss, 2)}~{round(max_loss, 2)}({round(average_loss, 2)} on average)\n"
               f"Vibration: {vibration}")
         return {
