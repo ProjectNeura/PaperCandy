@@ -16,7 +16,7 @@ class DataCompound(_network.DataCompound):
 
     def gpu(self) -> Self:
         o = _copy(self)
-        o.data, o.target = self.data.cuda(device=_config.CONFIG().CURRENT.get_predefined("device")), self.target.cuda()
+        o.data, o.target = self.data.cuda(device=_config.CONFIG().CURRENT.get_predefined("device")), self.target.cuda(device=_config.CONFIG().CURRENT.get_predefined("device"))
         return o
 
     def cpu(self) -> Self:
@@ -34,7 +34,7 @@ class ResultCompound(_network.ResultCompound):
 
     def gpu(self) -> Self:
         o = _copy(self)
-        o.input_data, o.output = self.input_data.gpu(), self.output.cuda()
+        o.input_data, o.output = self.input_data.gpu(), self.output.cuda(device=_config.CONFIG().CURRENT.get_predefined("device"))
         return o
 
     def cpu(self) -> Self:
@@ -56,7 +56,7 @@ class NetworkC(_network.NetworkC):
 
     def gpu(self) -> Self:
         o = _copy(self)
-        o._network = self._network.cuda()
+        o._network = self._network.cuda(device=_config.CONFIG().CURRENT.get_predefined("device"))
         return o
 
     def cpu(self) -> Self:
@@ -120,7 +120,7 @@ class LossFunctionC(_network.LossFunctionC):
 
     def gpu(self) -> Self:
         o = _copy(self)
-        o._loss_function = self._loss_function.cuda()
+        o._loss_function = self._loss_function.cuda(device=_config.CONFIG().CURRENT.get_predefined("device"))
         return o
 
     def cpu(self) -> Self:
