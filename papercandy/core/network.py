@@ -1,13 +1,13 @@
 import numpy as _np
 from os import PathLike
-from abc import abstractmethod
 from typing_extensions import Self
 from typing import Any, Union, Iterable
+from abc import abstractmethod, ABCMeta
 
 from papercandy.core import utils as _utils
 
 
-class DataCompound(object):
+class DataCompound(object, metaclass=ABCMeta):
     def __init__(self, data: Any, target: Any, d_type: type = Any):
         self.data: d_type = data
         self.target: d_type = target
@@ -24,7 +24,7 @@ class DataCompound(object):
         return self.data, self.target
 
 
-class ResultCompound(object):
+class ResultCompound(object, metaclass=ABCMeta):
     def __init__(self, input_data: DataCompound, output: Any, d_type: type = Any):
         self.input_data: DataCompound = input_data
         self.output: d_type = output
@@ -123,10 +123,7 @@ class LayerInfoList(object):
         return self
 
 
-class NetworkC(object):
-    def __len__(self) -> int:
-        return len(self.structure())
-
+class Container(object, metaclass=ABCMeta):
     @abstractmethod
     def __init__(self, **kwargs):
         raise NotImplementedError
@@ -150,51 +147,24 @@ class NetworkC(object):
     @abstractmethod
     def load(self, filename: Union[str, PathLike]) -> Self:
         raise NotImplementedError
+
+
+class NetworkC(Container, metaclass=ABCMeta):
+    def __len__(self) -> int:
+        return len(self.structure())
 
     @abstractmethod
     def structure(self) -> LayerInfoList:
         raise NotImplementedError
 
 
-class LossFunctionC(object):
-    @abstractmethod
-    def __init__(self, **kwargs):
-        raise NotImplementedError
-
-    @abstractmethod
-    def gpu(self) -> Self:
-        raise NotImplementedError
-
-    @abstractmethod
-    def cpu(self) -> Self:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get(self) -> Any:
-        raise NotImplementedError
-
-
-class OptimizerC(object):
-    @abstractmethod
-    def __init__(self, **kwargs):
-        raise NotImplementedError
-
-    @abstractmethod
-    def gpu(self) -> Self:
-        raise NotImplementedError
-
-    @abstractmethod
-    def cpu(self) -> Self:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get(self) -> Any:
-        raise NotImplementedError
-
-    @abstractmethod
+class LossFunctionC(Container, metaclass=ABCMeta):
     def save(self, filename: Union[str, PathLike]):
-        raise NotImplementedError
+        raise NotImplemented
 
-    @abstractmethod
     def load(self, filename: Union[str, PathLike]) -> Self:
-        raise NotImplementedError
+        raise NotImplemented
+
+
+class OptimizerC(Container, metaclass=ABCMeta):
+    pass

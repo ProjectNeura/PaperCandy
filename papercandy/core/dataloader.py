@@ -1,15 +1,15 @@
-from abc import abstractmethod
 from copy import copy as _copy
 from math import ceil as _ceil
 from typing_extensions import Self
 from typing import Iterator, Union, Any
+from abc import abstractmethod, ABCMeta
 from multiprocessing import Pool as _Pool
 
 from papercandy.core import network as _network
 from papercandy.core.optional_modules import _coota, coota_is_available as _coota_is_available
 
 
-class Dataset(object):
+class Dataset(object, metaclass=ABCMeta):
     """
     Since this class is likely to be involved in multiprocessing, make sure it's process secured.
     """
@@ -54,7 +54,7 @@ class Dataset(object):
             return self.cut(item)
 
 
-class UniversalDataloader(object):
+class UniversalDataloader(object, metaclass=ABCMeta):
     def __init__(self, dataset: Dataset):
         self.dataset: Dataset = dataset
 
@@ -89,11 +89,7 @@ class UniversalDataloader(object):
 
 
 if _coota_is_available():
-    class PCGenerator(_coota.Generator):
-        @abstractmethod
-        def make(self, size: int, *args) -> _network.DataCompound:
-            raise NotImplementedError
-
+    class PCGenerator(_coota.Generator, metaclass=ABCMeta):
         def generate(self, size: int, *args, parse: bool = True) -> _network.DataCompound:
             return super(PCGenerator, self).generate(size, *args, parse)
 
@@ -124,7 +120,7 @@ if _coota_is_available():
             return self.dataset.get(stop - start)
 
 
-class Dataloader(UniversalDataloader):
+class Dataloader(UniversalDataloader, metaclass=ABCMeta):
     def __init__(self, dataset: Dataset, batch_size: int = 1, num_works: int = 1):
         if batch_size < 1:
             raise ValueError("`batch_size` must be at least 1.")
@@ -233,7 +229,7 @@ class Dataloader(UniversalDataloader):
         raise NotImplementedError
 
 
-class PreprocessedDataloader(Dataloader):
+class PreprocessedDataloader(Dataloader, metaclass=ABCMeta):
     """
     All the indexes and sizes are multiplied by a proportion that how much the preprocessing extend the data.
     """

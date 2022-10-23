@@ -1,6 +1,6 @@
 from typing import Union, Any
-from abc import abstractmethod
 from copy import copy as _copy
+from abc import abstractmethod, ABCMeta
 
 from papercandy.core import network as _network, dataloader as _dl, config as _cfg
 
@@ -33,7 +33,7 @@ class TrainingMonitor(object):
         pass
 
 
-class Trainer(object):
+class Trainer(object, metaclass=ABCMeta):
     def __init__(self, dataloader: _dl.Dataloader):
         self._nc: Union[_network.NetworkC, None] = None
         self._lfc: Union[_network.LossFunctionC, None] = None
@@ -123,7 +123,7 @@ class Trainer(object):
         raise NotImplementedError
 
 
-class TrainerDataUtils(object):
+class TrainerDataUtils(object, metaclass=ABCMeta):
     @staticmethod
     def vibration(losses: list) -> bool:
         if len(losses) == 2:

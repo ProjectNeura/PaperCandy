@@ -1,5 +1,5 @@
 from typing import Union
-from abc import abstractmethod
+from abc import ABCMeta
 from typing_extensions import Self
 from torch import Tensor as _Tensor
 from os import listdir as _listdir, PathLike
@@ -24,11 +24,7 @@ class Dataloader(_dataloader.Dataloader):
         return _network.DataCompound(_Tensor(d_list), _Tensor(t_list))
 
 
-class PreprocessedDataloader(_dataloader.PreprocessedDataloader):
-    @abstractmethod
-    def preprocess(self, original_data: _network.DataCompound) -> list[_network.DataCompound]:
-        raise NotImplementedError
-
+class PreprocessedDataloader(_dataloader.PreprocessedDataloader, metaclass=ABCMeta):
     @staticmethod
     def combine_batch(data_batch: list[_network.DataCompound]) -> _network.DataCompound:
         return Dataloader.combine_batch(data_batch)

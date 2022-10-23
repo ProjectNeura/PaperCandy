@@ -1,11 +1,11 @@
 from typing import Union, Any
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 
 
 from papercandy.core import network as _network, dataloader as _dl, config as _cfg
 
 
-class Tester(object):
+class Tester(object, metaclass=ABCMeta):
     def __init__(self, dataloader: _dl.Dataloader):
         self._nc: Union[_network.NetworkC, None] = None
         self._config: _cfg.Config = _cfg.CONFIG().CURRENT

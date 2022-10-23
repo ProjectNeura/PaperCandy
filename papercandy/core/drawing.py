@@ -2,15 +2,15 @@ import cv2 as _cv2
 import numpy as _np
 from os import PathLike
 from typing import Any, Union
-from abc import abstractmethod
 from typing_extensions import Self
 from functools import singledispatch
 from matplotlib import pyplot as _plt
+from abc import abstractmethod, ABCMeta
 
 from papercandy.core import network as _network, train as _train, utils as _utils
 
 
-class Drawer(object):
+class Drawer(object, metaclass=ABCMeta):
     def __init__(self, width: int, height: int):
         self._width: int = width
         self._height: int = height
@@ -44,6 +44,12 @@ class Drawer(object):
         :return: self
         """
         raise NotImplementedError
+
+
+class PLTBasedDrawer(Drawer, metaclass=ABCMeta):
+    def save(self, filename: Union[str, PathLike]) -> Self:
+        _plt.savefig(filename)
+        return self
 
 
 class NetworkDrawer(Drawer):
@@ -202,7 +208,7 @@ class NetworkDrawer(Drawer):
         return self
 
 
-class LossesDrawer(Drawer):
+class LossesDrawer(PLTBasedDrawer):
     def __init__(self, width: int, height: int, bg: str = "white"):
         super(LossesDrawer, self).__init__(round(width / 100), round(height / 100))
         self._losses: list[float] = []
@@ -222,44 +228,34 @@ class LossesDrawer(Drawer):
         _plt.show()
         return self
 
-    def save(self, filename: Union[str, PathLike]) -> Self:
-        _plt.savefig(filename)
+
+class ComparableIndicatorDrawer(PLTBasedDrawer):
+    def __init__(self, width: int, height: int, indicator_labels: list[str], bg: str = "white"):
+        super(ComparableIndicatorDrawer, self).__init__(round(width / 100), round(height / 100))
+        self._losses: list[float] = []
+        self._bg: str = bg
+        self._indicator_labels: list[str] = indicator_labels
+        self._group_labels: list[str] = []
+        self._values: list[list[float]] = []
+
+    def __call__(self, group_labels: list[str], values: list[list[Union[int, float]]], tick_step: Union[int, float] = 1,
+                 group_gap: Union[int, float] = 0.2, bar_gap: Union[int, float] = 0):
+        self._group_labels += group_labels
+        self._values += values
+        _plt.figure(figsize=(self._width, self._height))    # FixMe: Not sure whether it supports multi times
+        x = _np.arange(len(self._indicator_labels)) * tick_step
+        group_width = tick_step - group_gap
+        bar_span = group_width / len(self._group_labels)
+        ticks = x + (group_width - bar_span) / 2
+        for i in range(len(self._group_labels)):
+            _plt.bar(x + i * bar_span, self._values[i], bar_span - bar_gap, label=self._group_labels[i])
+        _plt.ylabel("Value")
+        _plt.xticks(ticks, labels=self._indicator_labels)
         return self
 
-
-class AccuracyDrawer(Drawer):
-    def __init__(self, width: int, height: int, bg: str = "white"):
-        super(AccuracyDrawer, self).__init__(round(width / 100), round(height / 100))
-        self._bg: str = bg
-        self._acc_list: list[list] = []
-
-    def __call__(self, *args) -> Self:
-        """
-        :param args: either of the following types
-            1. accuracy: float, network_name: str
-            2. num_correct_data: int, num_total_data: int, network_name: str
-        :return: self
-        """
-        if len(args) == 1 and isinstance(args[0], Union[list, tuple]):
-            for i in args[0]:
-                self(*i)
-            return self
-        if len(args) == 2:
-            self._acc_list.append([args[0], args[1]])
-        if len(args) == 3:
-            self._acc_list.append([args[0] / args[1], f"{args[2]} {args[0]}/{args[1]}"])
-            return self
-        raise RuntimeError("Unexpected form of arguments.")
-
-    def show(self, title: str = "Network Accuracy", color: str = "black") -> Self:
-        _plt.figure(figsize=(self._width, self._height))    # FixMe: Not sure whether it supports multi times
-        _plt.bar(len(self._acc_list), [100 * i[0] for i in self._acc_list], color=color, label="accuracy(%)")
-        _plt.bar_label([i[1] for i in self._acc_list])
-        _plt.xlabel("Network")
-        _plt.ylabel("Accuracy")
-
-    def save(self, filename: Union[str, PathLike]) -> Self:
-        _plt.savefig(filename)
+    def show(self, title: str = "Performance Indicators"):
+        _plt.title(title)
+        _plt.show()
         return self
 
 
