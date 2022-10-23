@@ -7,7 +7,7 @@ from functools import singledispatch
 from matplotlib import pyplot as _plt
 from abc import abstractmethod, ABCMeta
 
-from papercandy.core import network as _network, train as _train, utils as _utils
+from papercandy.core import network as _network, train as _train, test as _test, utils as _utils
 
 
 class Drawer(object, metaclass=ABCMeta):
@@ -229,31 +229,31 @@ class LossesDrawer(PLTBasedDrawer):
         return self
 
 
-class ComparableIndicatorDrawer(PLTBasedDrawer):
-    def __init__(self, width: int, height: int, indicator_labels: list[str], bg: str = "white"):
-        super(ComparableIndicatorDrawer, self).__init__(round(width / 100), round(height / 100))
+class ComparablePerformanceDrawer(PLTBasedDrawer):
+    def __init__(self, width: int, height: int, indicators: list[str], bg: str = "white"):
+        super(ComparablePerformanceDrawer, self).__init__(round(width / 100), round(height / 100))
         self._losses: list[float] = []
         self._bg: str = bg
-        self._indicator_labels: list[str] = indicator_labels
+        self._indicators: list[str] = indicators
         self._group_labels: list[str] = []
         self._values: list[list[float]] = []
 
-    def __call__(self, group_labels: list[str], values: list[list[Union[int, float]]], tick_step: Union[int, float] = 1,
-                 group_gap: Union[int, float] = 0.2, bar_gap: Union[int, float] = 0):
-        self._group_labels += group_labels
-        self._values += values
+    def __call__(self, groups: list[str], scores: list[list[Union[int, float]]], color: str = "black", tick_step: Union[int, float] = 1,
+                 group_gap: Union[int, float] = 0.2, bar_gap: Union[int, float] = 0) -> Self:
+        self._group_labels += groups
+        self._values += scores
         _plt.figure(figsize=(self._width, self._height))    # FixMe: Not sure whether it supports multi times
-        x = _np.arange(len(self._indicator_labels)) * tick_step
+        x = _np.arange(len(self._indicators)) * tick_step
         group_width = tick_step - group_gap
         bar_span = group_width / len(self._group_labels)
         ticks = x + (group_width - bar_span) / 2
         for i in range(len(self._group_labels)):
-            _plt.bar(x + i * bar_span, self._values[i], bar_span - bar_gap, label=self._group_labels[i])
-        _plt.ylabel("Value")
-        _plt.xticks(ticks, labels=self._indicator_labels)
+            _plt.bar(x + i * bar_span, self._values[i], bar_span - bar_gap, color=color, label=self._group_labels[i])
+        _plt.ylabel("Score")
+        _plt.xticks(ticks, labels=self._indicators)
         return self
 
-    def show(self, title: str = "Performance Indicators"):
+    def show(self, title: str = "Performance") -> Self:
         _plt.title(title)
         _plt.show()
         return self
