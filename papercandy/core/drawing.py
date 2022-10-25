@@ -7,7 +7,8 @@ from functools import singledispatch
 from matplotlib import pyplot as _plt
 from abc import abstractmethod, ABCMeta
 
-from papercandy.core import network as _network, train as _train, test as _test, utils as _utils
+from papercandy import network as _network
+from papercandy.core import train as _train, utils as _utils
 
 
 class Drawer(object, metaclass=ABCMeta):
@@ -47,8 +48,16 @@ class Drawer(object, metaclass=ABCMeta):
 
 
 class PLTBasedDrawer(Drawer, metaclass=ABCMeta):
+    def title(self, title: str) -> Self:
+        _plt.title(title)
+        return self
+
     def save(self, filename: Union[str, PathLike]) -> Self:
         _plt.savefig(filename)
+        return self
+
+    def show(self) -> Self:
+        _plt.show()
         return self
 
 
@@ -223,11 +232,6 @@ class LossesDrawer(PLTBasedDrawer):
         _plt.ylabel("Loss")
         return self
 
-    def show(self, title: str = "Training Loss") -> Self:
-        _plt.title(title)
-        _plt.show()
-        return self
-
 
 class ComparablePerformanceDrawer(PLTBasedDrawer):
     def __init__(self, width: int, height: int, indicators: list[str], bg: str = "white"):
@@ -251,11 +255,6 @@ class ComparablePerformanceDrawer(PLTBasedDrawer):
             _plt.bar(x + i * bar_span, self._values[i], bar_span - bar_gap, color=color, label=self._group_labels[i])
         _plt.ylabel("Score")
         _plt.xticks(ticks, labels=self._indicators)
-        return self
-
-    def show(self, title: str = "Performance") -> Self:
-        _plt.title(title)
-        _plt.show()
         return self
 
 

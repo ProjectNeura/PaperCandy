@@ -2,7 +2,8 @@ from typing import Union, Any
 from abc import abstractmethod, ABCMeta
 
 
-from papercandy.core import network as _network, dataloader as _dl, config as _cfg
+from papercandy import network as _network
+from papercandy.core import dataloader as _dl, config as _cfg
 
 
 class Tester(object, metaclass=ABCMeta):
