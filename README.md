@@ -1,6 +1,6 @@
 # PaperCandy
 
-**PaperCandy** is a loosely coupled lightweight framework for deep learning papers. It provides a series of auxiliary tools for rapid rebuilding and writing papers. So far support PyTorch as the only front-end framework.
+**PaperCandy** is a loosely coupled lightweight framework for deep learning papers. It provides a series of auxiliary tools for rapid rebuilding and writing papers. So far supports PyTorch as the only front-end framework.
 
 ## Installation
 
