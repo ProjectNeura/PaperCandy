@@ -96,21 +96,23 @@ class NetworkC(_network.NetworkC):
 
     @staticmethod
     def layer2layer_info(layer: _Module) -> Union[LayerInfo, None]:
-        angle = 23
+        angle = 45
         if isinstance(layer, _modules.conv._ConvNd):
-            return LayerInfo(1200, 1200, angle, "Conv", f"{layer.in_channels}(in)x{layer.out_channels}(out)")
+            return LayerInfo(1200, 600, angle, "Conv", f"{layer.in_channels}(in)x{layer.out_channels}(out)")
         if isinstance(layer, _modules.pooling._MaxPoolNd):
-            return LayerInfo(800, 800, angle, "Pooling")
+            return LayerInfo(800, 400, angle, "Pooling")
         if isinstance(layer, _modules.dropout._DropoutNd):
-            return LayerInfo(800, 800, angle, "Dropout")
+            return LayerInfo(800, 400, angle, "Dropout")
         if isinstance(layer, _modules.batchnorm._BatchNorm):
-            return LayerInfo(800, 800, angle, "BatchNorm")
+            return LayerInfo(800, 400, angle, "BatchNorm")
+        if isinstance(layer, _modules.Linear):
+            return LayerInfo(500, 250, angle, "Linear")
         if isinstance(layer, _modules.ReLU):
-            return LayerInfo(400, 400, angle, "Relu")
+            return LayerInfo(400, 200, angle, "Relu")
         if isinstance(layer, _modules.LSTM):
-            return LayerInfo(800, 800, angle, "LSTM")
+            return LayerInfo(800, 400, angle, "LSTM")
         if isinstance(layer, _modules.Transformer):
-            return LayerInfo(800, 800, angle, "Transformer")
+            return LayerInfo(800, 400, angle, "Transformer")
         return None
 
 
