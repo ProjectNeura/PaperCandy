@@ -1,0 +1,7 @@
+.idea
+__pycache__
+main.py
+build
+paper_candy.egg-info
+dist
+data
