@@ -81,24 +81,6 @@ from papercandy import *
 from torch import nn
 
 
-class ExampleDataset(Dataset):
-    def __init__(self, src: Union[str, PathLike]):
-        self.src: Union[str, PathLike] = src
-        self.file_list: list = _listdir(self.src)
-
-    def __len__(self) -> int:
-        return len(self.file_list)
-
-    def cut(self, i: slice) -> Self:
-        o = ExampleDataset(self.src)
-        o.file_list = self.file_list[i]
-        return o
-
-    def get(self, i: int) -> _network.DataCompound:
-        with open("%s/%s" % (self.src, self.file_list[i]), "r") as f:
-            return _network.DataCompound(_Tensor([int(self.file_list[i])]), _Tensor(eval(f.read())))
-          
-
 if __name__ == "main":
     CONFIG().CURRENT = new_config("./config.txt")
     dataset = ExampleDataset("./data")

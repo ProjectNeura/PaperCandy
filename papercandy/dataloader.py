@@ -45,4 +45,4 @@ class ExampleDataset(Dataset):
 
     def get(self, i: int) -> _network.DataCompound:
         with open("%s/%s" % (self.src, self.file_list[i]), "r") as f:
-            return _network.DataCompound(_Tensor([int(self.file_list[i])]), _Tensor(eval(f.read())))
+            return _network.DataCompound(_Tensor([int(self.file_list[i][:-4])]), _Tensor(eval(f.read())))

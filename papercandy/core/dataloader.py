@@ -167,6 +167,11 @@ class Dataloader(UniversalDataloader, metaclass=ABCMeta):
         finally:
             self._iter_pointer += 1
 
+    def _pass_self(self) -> Self:
+        s = _copy(self)
+        s._pool = None
+        return s
+
     def num_batches(self) -> int:
         return _ceil(len(self) / self._batch_size)
 
@@ -207,9 +212,9 @@ class Dataloader(UniversalDataloader, metaclass=ABCMeta):
             work_res_list = []
             for i in range(self._num_works - 1):
                 work_res_list.append(
-                    self._pool.apply_async(self._load_batch, args=(self, spw, start + i * spw)))
+                    self._pool.apply_async(self._load_batch, args=(self._pass_self(), spw, start + i * spw)))
             work_res_list.append(
-                self._pool.apply_async(self._load_batch, args=(self, rest, start + size - rest)))
+                self._pool.apply_async(self._load_batch, args=(self._pass_self(), rest, start + size - rest)))
             self._pool.close()
             self._pool.join()
             for work_res in work_res_list:
