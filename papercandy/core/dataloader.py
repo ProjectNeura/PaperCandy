@@ -206,7 +206,7 @@ class Dataloader(UniversalDataloader, metaclass=ABCMeta):
             res_list += self._load_batch(self, size, start)
         else:
             self._pool = _Pool(self._num_works)
-            spw = int(size / self._num_works)
+            spw = size // self._num_works
             rest = size % self._num_works
             rest = spw if rest == 0 else rest
             work_res_list = []
