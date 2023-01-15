@@ -2,6 +2,6 @@
 __pycache__
 main.py
 build
-paper_candy.egg-info
+*.egg-info
 dist
 data
