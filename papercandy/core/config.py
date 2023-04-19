@@ -88,7 +88,7 @@ class Config(object):
         :param must_exist: whether to raise an error when the key is not found
         :param required_type: expected type of the value
             NOTICE: This will be directly called to convert the type, which bool type doesn't support.
-                Therefor we provide an alternative method (pretended to be a type-class)
+                Therefore, we provide an alternative method (pretended to be a type-class)
                 "papercandy.core.config.Bool" to solve this problem.
         :param default_val: the default value to return when the key is not found
             NOTICE: This only works when `must_exist` is False.
